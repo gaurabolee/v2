@@ -36,8 +36,8 @@ const Messages: React.FC = () => {
             <TabsContent value="open" className="space-y-4">
               <div className="space-y-0">
                 <Link to="/text/1" className="block hover:bg-muted/40 transition-colors p-4 cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 w-48 min-w-[12rem] max-w-[14rem]">
+                  <div className="flex items-center">
+                    <div className="flex items-center gap-3 w-48 min-w-[12rem]">
                       <Avatar className="h-10 w-10 shadow-sm border border-background">
                         <AvatarFallback className="text-sm font-medium">SC</AvatarFallback>
                       </Avatar>
@@ -46,9 +46,9 @@ const Messages: React.FC = () => {
                         <p className="text-sm text-muted-foreground font-sans mt-0.5">@samc</p>
                       </div>
                     </div>
-                    <div className="flex-1 mx-6">
-                      <div className="text-sm text-muted-foreground truncate">
-                        Thanks for sharing your thoughts on AI ethics. I think we need to consider...
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="text-sm text-muted-foreground w-full block h-6 leading-6">
+                        {"Thanks for sharing your thoughts on AI ethics. I think we need to consider new perspectives..."}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                         <span>Introduction</span>
@@ -62,8 +62,8 @@ const Messages: React.FC = () => {
                 <div className="h-px bg-border mx-4"></div>
 
                 <Link to="/text/2" className="block hover:bg-muted/40 transition-colors p-4 cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 w-48 min-w-[12rem] max-w-[14rem]">
+                  <div className="flex items-center">
+                    <div className="flex items-center gap-3 w-48 min-w-[12rem]">
                       <Avatar className="h-10 w-10 shadow-sm border border-background">
                         <AvatarFallback className="text-sm font-medium">MJ</AvatarFallback>
                       </Avatar>
@@ -72,9 +72,9 @@ const Messages: React.FC = () => {
                         <p className="text-sm text-muted-foreground font-sans mt-0.5">@mariaj</p>
                       </div>
                     </div>
-                    <div className="flex-1 mx-6">
-                      <div className="text-sm font-semibold text-foreground truncate">
-                        The ethical implications of AI decision-making are complex...
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="text-sm font-semibold text-foreground w-full block h-6 leading-6">
+                        {"The ethical implications of AI decision-making are complex and require care..."}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                         <span>AI Ethics</span>
@@ -88,8 +88,8 @@ const Messages: React.FC = () => {
                 <div className="h-px bg-border mx-4"></div>
 
                 <Link to="/text/3" className="block hover:bg-muted/40 transition-colors p-4 cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 w-48 min-w-[12rem] max-w-[14rem]">
+                  <div className="flex items-center">
+                    <div className="flex items-center gap-3 w-48 min-w-[12rem]">
                       <Avatar className="h-10 w-10 shadow-sm border border-background">
                         <AvatarFallback className="text-sm font-medium">AL</AvatarFallback>
                       </Avatar>
@@ -98,9 +98,9 @@ const Messages: React.FC = () => {
                         <p className="text-sm text-muted-foreground font-sans mt-0.5">@alexlee</p>
                       </div>
                     </div>
-                    <div className="flex-1 mx-6">
-                      <div className="text-sm text-muted-foreground truncate">
-                        Climate action requires both individual and systemic changes...
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="text-sm text-muted-foreground w-full block h-6 leading-6">
+                        {"Climate action requires both individual and systemic changes to make a real difference now..."}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                         <span>Climate Change</span>
@@ -114,8 +114,8 @@ const Messages: React.FC = () => {
                 <div className="h-px bg-border mx-4"></div>
 
                 <Link to="/text/4" className="block hover:bg-muted/40 transition-colors p-4 cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 w-48 min-w-[12rem] max-w-[14rem]">
+                  <div className="flex items-center">
+                    <div className="flex items-center gap-3 w-48 min-w-[12rem]">
                       <Avatar className="h-10 w-10 shadow-sm border border-background">
                         <AvatarFallback className="text-sm font-medium">SK</AvatarFallback>
                       </Avatar>
@@ -124,9 +124,9 @@ const Messages: React.FC = () => {
                         <p className="text-sm text-muted-foreground font-sans mt-0.5">@sarahk</p>
                       </div>
                     </div>
-                    <div className="flex-1 mx-6">
-                      <div className="text-sm font-semibold text-foreground truncate">
-                        Remote work has transformed how we think about productivity...
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="text-sm font-semibold text-foreground w-full block h-6 leading-6">
+                        {"Remote work has transformed how we think about productivity and collaboration..."}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                         <span>Remote Work</span>
@@ -140,8 +140,8 @@ const Messages: React.FC = () => {
                 <div className="h-px bg-border mx-4"></div>
 
                 <Link to="/text/5" className="block hover:bg-muted/40 transition-colors p-4 cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3 w-48 min-w-[12rem] max-w-[14rem]">
+                  <div className="flex items-center">
+                    <div className="flex items-center gap-3 w-48 min-w-[12rem]">
                       <Avatar className="h-10 w-10 shadow-sm border border-background">
                         <AvatarFallback className="text-sm font-medium">DR</AvatarFallback>
                       </Avatar>
@@ -150,9 +150,9 @@ const Messages: React.FC = () => {
                         <p className="text-sm text-muted-foreground font-sans mt-0.5">@davidr</p>
                       </div>
                     </div>
-                    <div className="flex-1 mx-6">
-                      <div className="text-sm text-muted-foreground truncate">
-                        Education should adapt to the digital age while maintaining...
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="text-sm text-muted-foreground w-full block h-6 leading-6">
+                        {"Education should adapt to the digital age while maintaining core values and inclusivity..."}
                       </div>
                       <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                         <span>Education</span>

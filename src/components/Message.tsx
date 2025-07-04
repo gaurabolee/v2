@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
@@ -72,29 +71,23 @@ const Message: React.FC<MessageProps> = ({
           "flex flex-col max-w-[80%]",
           isCurrentUser ? "items-end" : "items-start"
         )}>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium">{sender.name}</span>
-            <span className="text-xs text-muted-foreground">@{sender.username}</span>
-          </div>
-          
           <div className={cn(
             "rounded-2xl px-4 py-3",
             isCurrentUser 
               ? "bg-primary text-primary-foreground rounded-br-none" 
               : "bg-muted rounded-bl-none"
           )}>
-            <p className="text-sm whitespace-pre-wrap leading-relaxed">{content}</p>
+            <span className="flex items-center gap-2">
+              <span className="text-sm font-medium">{sender.name}</span>
+              <span className="text-xs text-muted-foreground">@{sender.username}:</span>
+              <span className="text-sm whitespace-pre-wrap leading-relaxed ml-1">{content}</span>
+            </span>
           </div>
-          
-          <div className="flex items-center mt-1 gap-2 text-xs text-muted-foreground">
-            <span>{timestamp}</span>
-          </div>
-          
-          {/* Engagement buttons */}
           <div className={cn(
-            "flex mt-1 gap-3",
+            "flex mt-1 gap-3 items-center text-xs text-muted-foreground",
             isCurrentUser ? "justify-end" : "justify-start"
           )}>
+            <span>{timestamp}</span>
             <Button 
               variant="ghost" 
               size="sm" 
@@ -107,12 +100,10 @@ const Message: React.FC<MessageProps> = ({
               <ThumbsUp className="h-3 w-3" />
               <span>{likeCount}</span>
             </Button>
-            
             <Button variant="ghost" size="sm" className="h-8 px-2 text-xs gap-1">
               <MessageCircle className="h-3 w-3" />
               <span>{comments}</span>
             </Button>
-            
             <Button variant="ghost" size="sm" className="h-8 px-2 text-xs gap-1">
               <Share2 className="h-3 w-3" />
               <span>{shares}</span>

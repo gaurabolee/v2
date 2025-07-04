@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Send, User, Image, Smile, PaperclipIcon, ThumbsUp, Info } from 'lucide-react';
+import { Send, User, Image, Smile, PaperclipIcon, ThumbsUp, Info, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 
@@ -34,17 +34,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
 }) => {
   const [messageText, setMessageText] = useState('');
   const [likedMessages, setLikedMessages] = useState<Record<string, boolean>>({});
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Scroll to bottom when new messages arrive
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   const handleSend = () => {
     if (messageText.trim() && !isLoading) {
@@ -104,7 +94,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
   return (
     <div className={cn("flex flex-col h-full", className)}>
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-hidden p-4 space-y-4">
         {Object.entries(groupedMessages).map(([date, messagesGroup]) => (
           <div key={date} className="space-y-6">
             <div className="flex justify-center">
@@ -131,7 +121,6 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     <User className="h-5 w-5" />
                   )}
                 </Avatar>
-                
                 <div className="space-y-1">
                   <div
                     className={cn(
@@ -141,20 +130,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                         : "bg-muted rounded-bl-none"
                     )}
                   >
-                    <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                      {message.content}
-                    </p>
+                    <span className="flex items-center gap-2">
+                      <span className="text-sm font-medium">{message.sender.name}:</span>
+                      <span className="text-sm whitespace-pre-wrap leading-relaxed ml-1">{message.content}</span>
+                    </span>
                   </div>
-                  
                   <div
                     className={cn(
-                      "flex text-xs text-muted-foreground items-center",
+                      "flex items-center gap-3 text-xs text-muted-foreground mt-1",
                       message.isCurrentUser ? "justify-end" : "justify-start"
                     )}
                   >
-                    <span className="inline-block">
-                      {message.sender.name} • {formatTime(message.timestamp)}
-                    </span>
+                    <span>{formatTime(message.timestamp)}</span>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -166,15 +153,18 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     >
                       <ThumbsUp className="h-3 w-3" />
                     </Button>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                      <MessageSquare className="h-3 w-3" />
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                      <Info className="h-3 w-3" />
+                    </Button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
         ))}
-        
-        {/* Auto-scroll anchor */}
-        <div ref={messagesEndRef} />
       </div>
       
       {/* Message input */}

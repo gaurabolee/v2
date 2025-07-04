@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Heart, MessageSquare, Eye, ArrowUp, ImagePlus, Mic, MicOff, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Heart, MessageSquare, Eye, ArrowUp, ImagePlus, Mic, MicOff, ChevronLeft, ChevronRight, CornerUpLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Add Web Speech API types
@@ -68,6 +68,50 @@ const topicMessages: Record<number, Message[]> = {
       timestamp: new Date().toISOString(),
       topicId: 1,
       engagement: { loves: 18, comments: 8, views: 856 }
+    },
+    {
+      id: '3',
+      content: "Thank you, Sam. To kick things off, let me share a bit about my journey. I started working in digital communication over a decade ago, and I've seen the landscape change dramatically. From the early days of forums and chat rooms to today's AI-driven platforms, it's been a fascinating evolution. I'm excited to hear your perspective as well!",
+      sender: {
+        name: 'Gaurab',
+        username: 'gaurab'
+      },
+      timestamp: new Date().toISOString(),
+      topicId: 1,
+      engagement: { loves: 30, comments: 15, views: 1500 }
+    },
+    {
+      id: '4',
+      content: "That's a great introduction, Gaurab! My background is in technology and writing, and I've always been passionate about how people connect and share ideas online. Arena is an exciting project because it brings together so many of the things I care about: community, innovation, and meaningful conversation.",
+      sender: {
+        name: 'Sam',
+        username: 'samc'
+      },
+      timestamp: new Date().toISOString(),
+      topicId: 1,
+      engagement: { loves: 22, comments: 10, views: 1100 }
+    },
+    {
+      id: '5',
+      content: "Absolutely, Sam. I think one of the most important aspects of any platform is how it empowers users to express themselves authentically. With Arena, we're aiming to create a space where thoughtful discussion is encouraged and everyone's voice can be heard, no matter their background or experience.",
+      sender: {
+        name: 'Gaurab',
+        username: 'gaurab'
+      },
+      timestamp: new Date().toISOString(),
+      topicId: 1,
+      engagement: { loves: 28, comments: 13, views: 1300 }
+    },
+    {
+      id: '6',
+      content: "I couldn't agree more. The ability to have nuanced, respectful conversations is what sets great communities apart. I'm looking forward to seeing how Arena evolves and how our users shape the direction of the platform.",
+      sender: {
+        name: 'Sam',
+        username: 'samc'
+      },
+      timestamp: new Date().toISOString(),
+      topicId: 1,
+      engagement: { loves: 20, comments: 9, views: 1000 }
     }
   ],
   2: [
@@ -110,6 +154,8 @@ const Conversation: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [selectedImages, setSelectedImages] = useState<{ url: string; file: File }[]>([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
+  const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
 
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
@@ -306,57 +352,16 @@ const Conversation: React.FC = () => {
                   <div className="space-y-6">
                     {messages
                       .filter(m => m.topicId === currentTopicId)
-                      .map((message, idx, arr) => (
-                        idx === 0 ? (
-                          <div key={message.id} className="mb-4">
-                            <div className="flex items-center gap-2 text-xs mb-1">
-                              <span className="font-medium text-foreground">{message.sender.name}</span>
-                              <span className="text-muted-foreground">{formatTimestamp(message.timestamp)}</span>
-                            </div>
-                            <div className="text-sm leading-relaxed mb-2 whitespace-pre-wrap">{message.content}</div>
-                            <div className="flex items-center gap-4 mt-2">
-                              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
-                                <Heart className="h-3.5 w-3.5" />
-                                <span>{message.engagement.loves}</span>
-                              </button>
-                              <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
-                                <MessageSquare className="h-3.5 w-3.5" />
-                                <span>{message.engagement.comments}</span>
-                              </button>
-                              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <Eye className="h-3.5 w-3.5" />
-                                <span>{message.engagement.views}</span>
-                              </div>
-                            </div>
+                      .map((message) => (
+                        <div key={message.id} className="mb-4 cursor-pointer" onClick={() => setActiveMessageId(message.id)}>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-sm font-semibold text-foreground">{message.sender.name}</span>
+                            {activeMessageId === message.id && (
+                              <span className="text-xs text-muted-foreground">{formatTimestamp(message.timestamp)}</span>
+                            )}
                           </div>
-                        ) : idx === 1 ? (
-                          <div key={message.id} className="mb-4">
-                            <div className="flex items-center gap-2 text-xs mb-1">
-                              <span className="font-medium text-foreground">{message.sender.name}</span>
-                              <span className="text-muted-foreground">{formatTimestamp(message.timestamp)}</span>
-                            </div>
-                            <div className="text-sm leading-relaxed mb-2 whitespace-pre-wrap">{message.content}</div>
-                            <div className="flex items-center gap-4 mt-2">
-                                <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
-                                  <Heart className="h-3.5 w-3.5" />
-                                  <span>{message.engagement.loves}</span>
-                                </button>
-                                <button className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors">
-                                  <MessageSquare className="h-3.5 w-3.5" />
-                                  <span>{message.engagement.comments}</span>
-                                </button>
-                                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                                  <Eye className="h-3.5 w-3.5" />
-                                  <span>{message.engagement.views}</span>
-                                </div>
-                              </div>
-                            </div>
-                        ) : (
-                          <div key={message.id} className="mb-4">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{message.sender.name}:</span>
-                              <span className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</span>
-                                </div>
+                          <span className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed block mt-0.5">{message.content}</span>
+                          {activeMessageId === message.id && (
                             <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
                               <button className="flex items-center gap-1 hover:text-primary transition-colors">
                                 <Heart className="h-3.5 w-3.5" />
@@ -369,14 +374,27 @@ const Conversation: React.FC = () => {
                               <div className="flex items-center gap-1">
                                 <Eye className="h-3.5 w-3.5" />
                                 <span>{message.engagement.views}</span>
-                                    </div>
-                              <span className="ml-auto">{formatTimestamp(message.timestamp)}</span>
+                              </div>
+                              <button className="flex items-center gap-1 hover:text-primary transition-colors" onClick={e => { e.stopPropagation(); setReplyToMessage(message); }}>
+                                <CornerUpLeft className="h-3.5 w-3.5" />
+                              </button>
                             </div>
-                          </div>
-                        )
-                    ))}
+                          )}
+                        </div>
+                      ))}
                   </div>
                 </CardContent>
+
+                {/* Above the input area, show reply preview if set */}
+                {replyToMessage && (
+                  <div className="mb-2 p-2 rounded bg-muted/30 border-l-4 border-primary flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-primary mr-2">Replying to {replyToMessage.sender.name}:</span>
+                      <span className="text-xs text-muted-foreground">{replyToMessage.content.slice(0, 60)}{replyToMessage.content.length > 60 ? '...' : ''}</span>
+                    </div>
+                    <button className="ml-4 text-xs text-muted-foreground hover:text-destructive" onClick={() => setReplyToMessage(null)}>Cancel</button>
+                  </div>
+                )}
 
                 {/* Input Area */}
                 <div className="border-t p-4 bg-muted/30">
