@@ -82,6 +82,9 @@ const InviteUsers: React.FC = () => {
   const [editingTopicIndex, setEditingTopicIndex] = useState<number | null>(null);
   const [editingTopicValue, setEditingTopicValue] = useState('');
 
+  // Add state for main topic
+  const [mainTopicIndex, setMainTopicIndex] = useState<number | null>(null);
+
   // Function to reset payment details
   const resetPaymentDetails = () => {
     setPaymentMethod('');
@@ -174,7 +177,12 @@ const InviteUsers: React.FC = () => {
   
   const handleAddTopic = () => {
     if (currentTopic.trim() && !topics.includes(currentTopic.trim())) {
-      setTopics([...topics, currentTopic.trim()]);
+      setTopics(prevTopics => {
+        const newTopics = [...prevTopics, currentTopic.trim()];
+        // If this is the first topic, set as main
+        if (newTopics.length === 1) setMainTopicIndex(0);
+        return newTopics;
+      });
       setCurrentTopic('');
     }
   };
@@ -451,6 +459,22 @@ const InviteUsers: React.FC = () => {
                             className="group relative bg-background border border-border rounded-lg px-3 py-1 flex items-center max-w-xs overflow-hidden"
                             title={topic}
                           >
+                            {/* Main topic selection dot */}
+                            <span
+                              className="mr-2 flex items-center justify-center cursor-pointer"
+                              onClick={() => setMainTopicIndex(index)}
+                              style={{ width: 12, height: 12 }}
+                              title="Set as main topic"
+                            >
+                              <span
+                                className={cn(
+                                  "block rounded-full border",
+                                  mainTopicIndex === index
+                                    ? "w-2 h-2 bg-primary border-primary"
+                                    : "w-2 h-2 border-muted-foreground"
+                                )}
+                              />
+                            </span>
                             {editingTopicIndex === index ? (
                               <input
                                 type="text"
@@ -479,6 +503,12 @@ const InviteUsers: React.FC = () => {
                           </div>
                         ))}
                       </div>
+                      {/* Info message for main topic */}
+                      {mainTopicIndex !== null && (
+                        <div className="mt-2 text-xs text-muted-foreground font-normal">
+                          Selected topic will be featured as title on Arena’s home screen.
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
