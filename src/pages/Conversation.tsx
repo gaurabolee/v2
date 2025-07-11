@@ -7,13 +7,38 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Heart, MessageSquare, Eye, ArrowUp, ImagePlus, Mic, MicOff, ChevronLeft, ChevronRight, CornerUpLeft } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ArrowLeft, Heart, MessageSquare, Eye, ArrowUp, ImagePlus, Mic, MicOff, ChevronLeft, ChevronRight, CornerUpLeft, X, Pin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // Add Web Speech API types
 interface Window {
   SpeechRecognition: any;
   webkitSpeechRecognition: any;
+}
+
+interface LoveReaction {
+  id: string;
+  user: {
+    name: string;
+    username: string;
+    avatar?: string;
+  };
+  timestamp: string;
+}
+
+interface Comment {
+  id: string;
+  content: string;
+  user: {
+    name: string;
+    username: string;
+    avatar?: string;
+    isHost?: boolean;
+  };
+  timestamp: string;
+  pinned?: boolean;
+  replies?: Comment[];
 }
 
 interface Message {
@@ -31,6 +56,8 @@ interface Message {
     comments: number;
     views: number;
   };
+  loveReactions?: LoveReaction[];
+  comments?: Comment[];
   images?: string[];
 }
 
@@ -56,7 +83,57 @@ const topicMessages: Record<number, Message[]> = {
       },
       timestamp: new Date().toISOString(),
       topicId: 1,
-      engagement: { loves: 24, comments: 12, views: 1234 }
+      engagement: { loves: 10, comments: 12, views: 1234 },
+      loveReactions: [
+        { id: '1', user: { name: 'Alex Chen', username: 'alexchen' }, timestamp: new Date(Date.now() - 1000 * 60 * 5).toISOString() },
+        { id: '2', user: { name: 'Maria Rodriguez', username: 'mariarod' }, timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString() },
+        { id: '3', user: { name: 'David Kim', username: 'davidkim' }, timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString() },
+        { id: '4', user: { name: 'Sarah Johnson', username: 'sarahj' }, timestamp: new Date(Date.now() - 1000 * 60 * 20).toISOString() },
+        { id: '5', user: { name: 'Michael Brown', username: 'mikebrown' }, timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString() },
+        { id: '6', user: { name: 'Emily Davis', username: 'emilyd' }, timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString() },
+        { id: '7', user: { name: 'James Wilson', username: 'jamesw' }, timestamp: new Date(Date.now() - 1000 * 60 * 35).toISOString() },
+        { id: '8', user: { name: 'Lisa Anderson', username: 'lisaa' }, timestamp: new Date(Date.now() - 1000 * 60 * 40).toISOString() },
+        { id: '9', user: { name: 'Robert Taylor', username: 'robertt' }, timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString() },
+        { id: '10', user: { name: 'Jennifer Lee', username: 'jenniferl' }, timestamp: new Date(Date.now() - 1000 * 60 * 50).toISOString() }
+      ],
+      comments: [
+        {
+          id: 'c1',
+          content: "Great to see this conversation starting! Looking forward to the insights.",
+          user: { name: 'Alex Chen', username: 'alexchen', isHost: false },
+          timestamp: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+          replies: [
+            {
+              id: 'r1',
+              content: "Thanks Alex! We're excited to share our perspectives.",
+              user: { name: 'Gaurab', username: 'gaurab', isHost: true },
+              timestamp: new Date(Date.now() - 1000 * 60 * 25).toISOString()
+            }
+          ],
+          pinned: true
+        },
+        {
+          id: 'c2',
+          content: "This is going to be an interesting discussion about digital communication.",
+          user: { name: 'Maria Rodriguez', username: 'mariarod', isHost: false },
+          timestamp: new Date(Date.now() - 1000 * 60 * 20).toISOString()
+        },
+        {
+          id: 'c3',
+          content: "I'm curious about how Arena will differentiate itself from existing platforms.",
+          user: { name: 'David Kim', username: 'davidkim', isHost: false },
+          timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+          replies: [
+            {
+              id: 'r2',
+              content: "Great question David! We'll dive deep into that in the next topic.",
+              user: { name: 'Sam', username: 'samc', isHost: true },
+              timestamp: new Date(Date.now() - 1000 * 60 * 10).toISOString(),
+              pinned: true
+            }
+          ]
+        }
+      ]
     },
     {
       id: '2',
@@ -144,7 +221,7 @@ const topicMessages: Record<number, Message[]> = {
 
 const Conversation: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { currentUser } = useAuth();
   const [currentTopicId, setCurrentTopicId] = useState(1);
   const [messages, setMessages] = useState<Message[]>(topicMessages[1]);
 
@@ -156,6 +233,14 @@ const Conversation: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
   const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
+  const [showLoveReactions, setShowLoveReactions] = useState<string | null>(null);
+  const [showComments, setShowComments] = useState<string | null>(null);
+  const [commentInput, setCommentInput] = useState('');
+  const [replyToComment, setReplyToComment] = useState<Comment | null>(null);
+  const [replyToReply, setReplyToReply] = useState<Comment | null>(null);
+  const [activeCommentId, setActiveCommentId] = useState<string | null>(null);
+  const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
+  const [pinnedComments, setPinnedComments] = useState<string[]>([]);
 
   const adjustTextareaHeight = () => {
     const textarea = textareaRef.current;
@@ -242,7 +327,7 @@ const Conversation: React.FC = () => {
   };
 
   const handleSendMessage = () => {
-    if ((!inputValue.trim() && selectedImages.length === 0) || !user) return;
+    if ((!inputValue.trim() && selectedImages.length === 0) || !currentUser) return;
 
     // Create copies of the image URLs to persist them
     const persistedImages = selectedImages.map(img => {
@@ -256,8 +341,8 @@ const Conversation: React.FC = () => {
       id: Date.now().toString(),
       content: inputValue,
       sender: {
-        name: user.name || 'User',
-        username: user.username || 'user'
+        name: currentUser.name || 'User',
+        username: currentUser.username || 'user'
       },
       timestamp: new Date().toISOString(),
       topicId: currentTopicId,
@@ -279,6 +364,172 @@ const Conversation: React.FC = () => {
       minute: '2-digit',
       hour12: true 
     });
+  };
+
+  const handleAddComment = () => {
+    if (!commentInput.trim() || !showComments || !currentUser) return;
+
+    const newComment: Comment = {
+      id: `comment_${Date.now()}`,
+      content: commentInput,
+      user: {
+        name: currentUser.name,
+        username: currentUser.username,
+        isHost: currentUser.username === 'gaurab' || currentUser.username === 'samc'
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => prev.map(message => {
+      if (message.id === showComments) {
+        return {
+          ...message,
+          comments: [...(message.comments || []), newComment],
+          engagement: {
+            ...message.engagement,
+            comments: message.engagement.comments + 1
+          }
+        };
+      }
+      return message;
+    }));
+
+    setCommentInput('');
+    setReplyToComment(null);
+    setReplyToReply(null);
+  };
+
+  const handleAddReply = (commentId: string) => {
+    if (!commentInput.trim() || !showComments || !currentUser) return;
+
+    const newReply: Comment = {
+      id: `reply_${Date.now()}`,
+      content: commentInput,
+      user: {
+        name: currentUser.name,
+        username: currentUser.username,
+        isHost: currentUser.username === 'gaurab' || currentUser.username === 'samc'
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => prev.map(message => {
+      if (message.id === showComments) {
+        return {
+          ...message,
+          comments: message.comments?.map(comment => {
+            if (comment.id === commentId) {
+              return {
+                ...comment,
+                replies: [...(comment.replies || []), newReply]
+              };
+            }
+            return comment;
+          })
+        };
+      }
+      return message;
+    }));
+
+    setCommentInput('');
+    setReplyToComment(null);
+    setReplyToReply(null);
+  };
+
+  const handleAddReplyToReply = (commentId: string, replyId: string) => {
+    if (!commentInput.trim() || !showComments || !currentUser) return;
+
+    const newReplyToReply: Comment = {
+      id: `reply_to_reply_${Date.now()}`,
+      content: commentInput,
+      user: {
+        name: currentUser.name,
+        username: currentUser.username,
+        isHost: currentUser.username === 'gaurab' || currentUser.username === 'samc'
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => prev.map(message => {
+      if (message.id === showComments) {
+        return {
+          ...message,
+          comments: message.comments?.map(comment => {
+            if (comment.id === commentId) {
+              return {
+                ...comment,
+                replies: comment.replies?.map(reply => {
+                  if (reply.id === replyId) {
+                    return {
+                      ...reply,
+                      replies: [...(reply.replies || []), newReplyToReply]
+                    };
+                  }
+                  return reply;
+                })
+              };
+            }
+            return comment;
+          })
+        };
+      }
+      return message;
+    }));
+
+    setCommentInput('');
+    setReplyToComment(null);
+    setReplyToReply(null);
+  };
+
+  // Pin/unpin comment (host only)
+  const handlePinComment = (commentId: string) => {
+    if (!currentUser || (currentUser.username !== 'gaurab' && currentUser.username !== 'samc')) return;
+    setMessages(prev => prev.map(message => {
+      if (message.id === showComments) {
+        return {
+          ...message,
+          comments: message.comments?.map(comment => {
+            if (comment.id === commentId) {
+              return {
+                ...comment,
+                pinned: !comment.pinned
+              };
+            }
+            return comment;
+          })
+        };
+      }
+      return message;
+    }));
+  };
+  // Pin/unpin reply (host only)
+  const handlePinReply = (commentId: string, replyId: string) => {
+    if (!currentUser || (currentUser.username !== 'gaurab' && currentUser.username !== 'samc')) return;
+    setMessages(prev => prev.map(message => {
+      if (message.id === showComments) {
+        return {
+          ...message,
+          comments: message.comments?.map(comment => {
+            if (comment.id === commentId) {
+              return {
+                ...comment,
+                replies: comment.replies?.map(reply => {
+                  if (reply.id === replyId) {
+                    return {
+                      ...reply,
+                      pinned: !reply.pinned
+                    };
+                  }
+                  return reply;
+                })
+              };
+            }
+            return comment;
+          })
+        };
+      }
+      return message;
+    }));
   };
 
   return (
@@ -352,22 +603,55 @@ const Conversation: React.FC = () => {
                   <div className="space-y-6">
                     {messages
                       .filter(m => m.topicId === currentTopicId)
-                      .map((message) => (
+                      .map((message, idx, arr) => (
                         <div key={message.id} className="mb-4 cursor-pointer" onClick={() => setActiveMessageId(message.id)}>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-sm font-semibold text-foreground">{message.sender.name}</span>
-                            {activeMessageId === message.id && (
-                              <span className="text-xs text-muted-foreground">{formatTimestamp(message.timestamp)}</span>
-                            )}
-                          </div>
-                          <span className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed block mt-0.5">{message.content}</span>
+                          {/* Show reply preview for Sam's last message as if replying to Gaurab */}
+                          {message.id === '6' && (
+                            <>
+                              <div className="flex items-center gap-2 mb-1 ml-2">
+                                <span className="text-xs text-muted-foreground">Absolutely, Sam. I think one of the most important aspects of any platform is how it empowers users to express themselves authentically...</span>
+                              </div>
+                              <div className="flex items-baseline gap-2 mb-1 ml-0">
+                                <span className="text-sm font-semibold text-foreground">{message.sender.name}</span>
+                                {activeMessageId === message.id && (
+                                  <span className="text-xs text-muted-foreground">Jul 9, 5:31 PM</span>
+                                )}
+                              </div>
+                              <span className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed block mt-0.5">{message.content}</span>
+                            </>
+                          )}
+                          {message.id !== '6' && (
+                            <>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-sm font-semibold text-foreground">{message.sender.name}</span>
+                                {activeMessageId === message.id && (
+                                  <span className="text-xs text-muted-foreground">{formatTimestamp(message.timestamp)}</span>
+                                )}
+                              </div>
+                              <span className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed block mt-0.5">{message.content}</span>
+                            </>
+                          )}
                           {activeMessageId === message.id && (
                             <div className="flex items-center gap-4 text-xs text-muted-foreground mt-1">
-                              <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                              <button 
+                                className="flex items-center gap-1 hover:text-primary transition-colors"
+                                onClick={e => { 
+                                  e.stopPropagation(); 
+                                  if (message.loveReactions && message.loveReactions.length > 0) {
+                                    setShowLoveReactions(message.id);
+                                  }
+                                }}
+                              >
                                 <Heart className="h-3.5 w-3.5" />
                                 <span>{message.engagement.loves}</span>
                               </button>
-                              <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                              <button 
+                                className="flex items-center gap-1 hover:text-primary transition-colors"
+                                onClick={e => { 
+                                  e.stopPropagation(); 
+                                  setShowComments(message.id);
+                                }}
+                              >
                                 <MessageSquare className="h-3.5 w-3.5" />
                                 <span>{message.engagement.comments}</span>
                               </button>
@@ -389,7 +673,7 @@ const Conversation: React.FC = () => {
                 {replyToMessage && (
                   <div className="mb-2 p-2 rounded bg-muted/30 border-l-4 border-primary flex items-center justify-between">
                     <div>
-                      <span className="font-semibold text-primary mr-2">Replying to {replyToMessage.sender.name}:</span>
+                      <span className="font-normal text-primary mr-2 text-sm">Replying to {replyToMessage.sender.name}:</span>
                       <span className="text-xs text-muted-foreground">{replyToMessage.content.slice(0, 60)}{replyToMessage.content.length > 60 ? '...' : ''}</span>
                     </div>
                     <button className="ml-4 text-xs text-muted-foreground hover:text-destructive" onClick={() => setReplyToMessage(null)}>Cancel</button>
@@ -491,6 +775,195 @@ const Conversation: React.FC = () => {
           </Card>
         </div>
       </TransitionWrapper>
+
+      {/* Love Reactions Dialog */}
+      <Dialog open={showLoveReactions !== null} onOpenChange={() => setShowLoveReactions(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Reactions
+            </DialogTitle>
+          </DialogHeader>
+          <div className="max-h-96 overflow-y-auto">
+            {showLoveReactions && messages.find(m => m.id === showLoveReactions)?.loveReactions?.map((reaction) => (
+              <div key={reaction.id} className="flex items-center gap-3 p-3 hover:bg-muted/50 rounded-lg transition-colors">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="text-xs">
+                    {reaction.user.name.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{reaction.user.name}</p>
+                  <p className="text-xs text-muted-foreground">@{reaction.user.username}</p>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {new Date(reaction.timestamp).toLocaleString([], { 
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                  })}
+                </span>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Comments Dialog */}
+      <Dialog open={showComments !== null} onOpenChange={() => { 
+        setShowComments(null); 
+        setReplyToComment(null); 
+        setReplyToReply(null);
+        setCommentInput(''); 
+        setActiveCommentId(null);
+        setActiveReplyId(null);
+      }}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Comments</DialogTitle>
+          </DialogHeader>
+          
+          <div className="flex-1 overflow-y-auto space-y-4">
+            {showComments && messages.find(m => m.id === showComments)?.comments?.map((comment) => (
+              <div key={comment.id} className="space-y-3">
+                <div className="relative">
+                  {comment.pinned && (
+                    <Pin className="absolute top-2 right-3 h-5 w-5 text-muted-foreground opacity-60" />
+                  )}
+                  {/* Main Comment */}
+                  <div 
+                    className="flex gap-3 cursor-pointer p-2 rounded-lg hover:bg-muted/30 transition-colors"
+                    onClick={() => setActiveCommentId(comment.id)}
+                  >
+                    <Avatar className="h-8 w-8 flex-shrink-0">
+                      <AvatarFallback className="text-xs">
+                        {comment.user.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-sm font-semibold text-foreground">{comment.user.name}</span>
+                        {comment.user.isHost && (
+                          <Badge variant="secondary" className="text-xs">Host</Badge>
+                        )}
+                        <span className="text-xs text-muted-foreground">
+                          {formatTimestamp(comment.timestamp)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed block mt-0.5">{comment.content}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                        <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                          <Heart className="h-3.5 w-3.5" />
+                          <span>0</span>
+                        </button>
+                        <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          <span>{comment.replies?.length || 0}</span>
+                        </button>
+                        {currentUser && (currentUser.username === 'gaurab' || currentUser.username === 'samc') && (
+                          <button
+                            className="ml-2 text-xs text-muted-foreground hover:text-primary"
+                            onClick={e => { e.stopPropagation(); handlePinComment(comment.id); }}
+                            title={comment.pinned ? 'Unpin' : 'Pin'}
+                          >
+                            <Pin className={`h-4 w-4 opacity-60 ${comment.pinned ? 'text-primary' : 'text-muted-foreground'}`} />
+                          </button>
+                        )}
+                        <div className="flex items-center gap-1">
+                          <Eye className="h-3.5 w-3.5" />
+                          <span>0</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Replies */}
+                {activeCommentId === comment.id && comment.replies && comment.replies.length > 0 && (
+                  <div className="ml-11 space-y-3">
+                    {comment.replies.map((reply) => (
+                      <div 
+                        key={reply.id} 
+                        className="flex gap-3 cursor-pointer p-2 rounded-lg hover:bg-muted/30 transition-colors"
+                        onClick={() => setActiveReplyId(reply.id)}
+                      >
+                        <Avatar className="h-6 w-6 flex-shrink-0">
+                          <AvatarFallback className="text-xs">
+                            {reply.user.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-sm font-semibold text-foreground">{reply.user.name}</span>
+                            {reply.user.isHost && (
+                              <Badge variant="secondary" className="text-xs">Host</Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground">
+                              {formatTimestamp(reply.timestamp)}
+                            </span>
+                          </div>
+                          <p className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed block mt-0.5">{reply.content}</p>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                            <button className="flex items-center gap-1 hover:text-primary transition-colors">
+                              <Heart className="h-3.5 w-3.5" />
+                              <span>0</span>
+                            </button>
+                            <button 
+                              className="flex items-center gap-1 hover:text-primary transition-colors"
+                              onClick={e => { e.stopPropagation(); setReplyToComment(comment); setReplyToReply(reply); }}
+                            >
+                              <CornerUpLeft className="h-3.5 w-3.5" />
+                            </button>
+                            <div className="flex items-center gap-1">
+                              <Eye className="h-3.5 w-3.5" />
+                              <span>0</span>
+                            </div>
+                            {currentUser && (currentUser.username === 'gaurab' || currentUser.username === 'samc') && (
+                              <button
+                                className="ml-2 text-xs text-muted-foreground hover:text-primary"
+                                onClick={e => { e.stopPropagation(); handlePinReply(comment.id, reply.id); }}
+                                title={reply.pinned ? 'Unpin' : 'Pin'}
+                              >
+                                <Pin className={`h-4 w-4 opacity-60 ${reply.pinned ? 'text-primary' : 'text-muted-foreground'}`} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Reply Input */}
+                {replyToComment?.id === comment.id && (
+                  <div className="ml-11 flex gap-2 mt-2">
+                    <input
+                      type="text"
+                      value={commentInput}
+                      onChange={(e) => setCommentInput(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && (replyToReply ? handleAddReplyToReply(comment.id, replyToReply.id) : handleAddReply(comment.id))}
+                      placeholder={replyToReply ? `Reply to ${replyToReply.user.name}...` : `Reply to ${comment.user.name}...`}
+                      className="flex-1 text-sm px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                    <Button size="sm" onClick={() => replyToReply ? handleAddReplyToReply(comment.id, replyToReply.id) : handleAddReply(comment.id)} disabled={!commentInput.trim()}>
+                      Reply
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => { setReplyToComment(null); setReplyToReply(null); setCommentInput(''); }}>
+                      Cancel
+                    </Button>
+                  </div>
+                )}
+
+              </div>
+            ))}
+          </div>
+
+
+
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
