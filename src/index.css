@@ -147,3 +147,8 @@
     pointer-events: auto;
   }
 }
+
+body, html, #root {
+  overflow: visible !important;
+  position: static !important;
+}
