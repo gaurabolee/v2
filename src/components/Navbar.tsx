@@ -118,7 +118,7 @@ const Navbar: React.FC = () => {
   }
 
   return (
-    <header className={cn('fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300', scrolled ? 'glassmorphism py-3' : 'bg-transparent py-5')}>
+    <header className={cn('fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 bg-background py-5', scrolled ? '' : '')}>
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link to={currentUser && !isLandingPage && !isAuthPage ? "/home" : "/"} className="flex items-center gap-2.5">
           <Logo size={32} angle={135} />
@@ -127,12 +127,12 @@ const Navbar: React.FC = () => {
 
         {currentUser && !isLandingPage && !isAuthPage && (
           <div className="hidden md:block">
-            <div className="relative flex items-center bg-muted/50 rounded-full px-3 py-1">
+            <div className="relative flex items-center bg-muted/70 dark:bg-[#23272f] shadow-lg border border-muted/40 rounded-full px-3 py-1 transition-all duration-300 focus-within:shadow-xl focus-within:border-primary/30 hover:shadow-xl hover:border-primary/20 h-10">
               <Search className="h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search Arena..."
-                className="ml-2 flex-1 bg-transparent outline-none placeholder:text-muted-foreground focus:ring-0"
+                className="ml-2 flex-1 bg-transparent outline-none placeholder:text-muted-foreground focus:ring-0 text-sm py-1"
               />
             </div>
           </div>
@@ -146,7 +146,7 @@ const Navbar: React.FC = () => {
                   <Link
                     to={link.path}
                     className={cn(
-                      "flex items-center gap-3 text-sm font-medium transition-colors hover:text-primary",
+                      "flex flex-col items-center gap-1 text-sm font-medium transition-all duration-300 hover:text-primary group",
                       isActive(link.path) ? "text-primary" : "text-foreground"
                     )}
                   >
@@ -154,16 +154,15 @@ const Navbar: React.FC = () => {
                       variant="ghost" 
                       size="sm" 
                       className={cn(
-                        "rounded-full p-2 w-9 h-9 transition-all duration-200 flex items-center justify-center",
-                        isActive(link.path) ? "bg-muted/20 dark:bg-muted/50" : ""
+                        "p-0 w-auto h-auto min-w-0 min-h-0 bg-transparent border-none shadow-none hover:bg-transparent focus:bg-transparent active:bg-transparent transition-none flex items-center justify-center",
                       )}
                       aria-label={link.name}
                     >
                       {link.name === 'Activity' ? (
                         <div className="relative flex items-center justify-center w-full h-full">
                           <Bell className={cn(
-                            "transition-all duration-200",
-                            isActive(link.path) ? "h-[22px] w-[22px] text-primary" : "h-5 w-5 text-foreground"
+                            "h-5 w-5 transition-all duration-300",
+                            isActive(link.path) ? "text-primary" : "text-muted-foreground"
                           )} />
                           {unreadBellCount > 0 && (
                             <Badge
@@ -177,12 +176,18 @@ const Navbar: React.FC = () => {
                       ) : (
                         React.cloneElement(link.icon, {
                           className: cn(
-                            "transition-all duration-200",
-                            isActive(link.path) ? "h-[22px] w-[22px] text-primary" : "h-5 w-5 text-foreground"
+                            "h-5 w-5 transition-all duration-300",
+                            isActive(link.path) ? "text-primary" : "text-muted-foreground"
                           )
                         })
                       )}
                     </Button>
+                    <span className={cn(
+                      "text-xs font-medium transition-all duration-300 opacity-100 translate-y-0",
+                      isActive(link.path) ? "text-primary" : "text-muted-foreground"
+                    )}>
+                      {link.name}
+                    </span>
                   </Link>
                 </li>
               ))}
@@ -190,16 +195,16 @@ const Navbar: React.FC = () => {
           </nav>
         )}
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 h-10">
           {currentUser && !isLandingPage && !isAuthPage ? (
             <>
-              <Link to="/profile" className={`nav-link ${isActive('/profile') ? 'profile-active' : ''}`}>
+              <Link to="/profile" className={`nav-link ${isActive('/profile') ? 'profile-active' : ''} flex flex-col items-center gap-1 group`}>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "rounded-full p-0 w-9 h-9 transition-all duration-200",
-                    isActive('/profile') ? "bg-muted/20 dark:bg-muted/50" : ""
+                    "p-0 w-auto h-auto min-w-0 min-h-0 bg-transparent border-none shadow-none hover:bg-transparent focus:bg-transparent active:bg-transparent transition-none flex items-center justify-center",
+                    isActive('/profile') ? "text-primary" : "text-foreground"
                   )} 
                   aria-label="Your profile"
                 >
@@ -210,6 +215,12 @@ const Navbar: React.FC = () => {
                     </AvatarFallback>
                   </Avatar>
                 </Button>
+                <span className={cn(
+                  "text-xs font-medium transition-all duration-300 opacity-100 translate-y-0",
+                  isActive('/profile') ? "text-primary" : "text-muted-foreground"
+                )}>
+                  Profile
+                </span>
               </Link>
             </>
           ) : (!currentUser || isLandingPage) && (
@@ -230,9 +241,21 @@ const Navbar: React.FC = () => {
               )}
             </>
           )}
-          <Button variant="ghost" size="sm" onClick={toggleTheme}>
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          </Button>
+          <div className="group flex flex-col items-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="p-0 w-auto h-auto min-w-0 min-h-0 bg-transparent border-none shadow-none hover:bg-transparent focus:bg-transparent active:bg-transparent transition-none flex items-center justify-center"
+              onClick={toggleTheme}
+              aria-label="Toggle theme"
+            >
+              <span className="flex items-center justify-center w-full h-full">
+                {theme === 'dark' 
+                  ? <Sun className="h-5 w-5 block relative top-[-2px] left-[2px] text-muted-foreground group-hover:text-primary group-focus:text-primary" /> 
+                  : <Moon className="h-5 w-5 block relative top-[-2px] left-[2px] text-muted-foreground group-hover:text-primary group-focus:text-primary" />}
+              </span>
+            </Button>
+          </div>
         </div>
       </div>
     </header>

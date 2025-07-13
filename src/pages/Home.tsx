@@ -16,7 +16,8 @@ import {
   Clock,
   Users,
   Calendar,
-  ArrowUp
+  ArrowUp,
+  Bookmark
 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -25,6 +26,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { cn } from '@/lib/utils';
 
 interface Participant {
   name: string;
@@ -43,6 +45,8 @@ interface Conversation {
     loves: number;
     comments: number;
   };
+  likedBy?: { name: string; username: string; time: string }[];
+  commentedBy?: { name: string; username: string; time: string }[];
 }
 
 const sampleConversations: Conversation[] = [
@@ -56,10 +60,10 @@ const sampleConversations: Conversation[] = [
     ],
     participants: [
       {
-        name: "Gaurab Oli",
-        username: "gaurab",
-        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-        bio: "Founder of Arena • Building the future of public text conversations • Exploring how AI and human creativity intersect in digital communication",
+        name: "Rick Harris",
+        username: "rickharris",
+        avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+        bio: "Rick Harris is a digital strategist and podcast innovator, passionate about the intersection of technology and storytelling. With over a decade of experience, he helps creators build communities, amplify voices, and shape the future of public conversations online.",
       },
       {
         name: "Sam Chen",
@@ -70,9 +74,24 @@ const sampleConversations: Conversation[] = [
     ],
     engagement: {
       views: 1234,
-      loves: 89,
-      comments: 23
-    }
+      loves: 10,
+      comments: 5
+    },
+    likedBy: [
+      { name: "Alex Chen", username: "alexchen", time: "Jul 13, 11:01 AM" },
+      { name: "Maria Rodriguez", username: "mariarod", time: "Jul 13, 10:56 AM" },
+      { name: "David Kim", username: "davidkim", time: "Jul 13, 10:51 AM" },
+      { name: "Sarah Johnson", username: "sarahj", time: "Jul 13, 10:46 AM" },
+      { name: "Michael Brown", username: "mikebrown", time: "Jul 13, 10:41 AM" },
+      { name: "Emily Davis", username: "emilyd", time: "Jul 13, 10:36 AM" }
+    ],
+    commentedBy: [
+      { name: "Alex Chen", username: "alexchen", time: "Jul 13, 11:01 AM" },
+      { name: "Maria Rodriguez", username: "mariarod", time: "Jul 13, 10:56 AM" },
+      { name: "David Kim", username: "davidkim", time: "Jul 13, 10:51 AM" },
+      { name: "Sarah Johnson", username: "sarahj", time: "Jul 13, 10:46 AM" },
+      { name: "Michael Brown", username: "mikebrown", time: "Jul 13, 10:41 AM" }
+    ]
   },
   {
     id: '2',
@@ -100,7 +119,26 @@ const sampleConversations: Conversation[] = [
       views: 987,
       loves: 54,
       comments: 17
-    }
+    },
+    commentedBy: [
+      { name: "John Smith", username: "johnsmith", time: "Jul 13, 11:15 AM" },
+      { name: "Lisa Wang", username: "lisawang", time: "Jul 13, 11:10 AM" },
+      { name: "Tom Johnson", username: "tomjohnson", time: "Jul 13, 11:05 AM" },
+      { name: "Emma Davis", username: "emmadavis", time: "Jul 13, 11:00 AM" },
+      { name: "Chris Wilson", username: "chriswilson", time: "Jul 13, 10:55 AM" },
+      { name: "Anna Lee", username: "annalee", time: "Jul 13, 10:50 AM" },
+      { name: "Mike Chen", username: "mikechen", time: "Jul 13, 10:45 AM" },
+      { name: "Rachel Green", username: "rachelgreen", time: "Jul 13, 10:40 AM" },
+      { name: "Kevin Park", username: "kevinpark", time: "Jul 13, 10:35 AM" },
+      { name: "Sophie Kim", username: "sophiekim", time: "Jul 13, 10:30 AM" },
+      { name: "Daniel Brown", username: "danielbrown", time: "Jul 13, 10:25 AM" },
+      { name: "Jessica White", username: "jessicawhite", time: "Jul 13, 10:20 AM" },
+      { name: "Ryan Taylor", username: "ryantaylor", time: "Jul 13, 10:15 AM" },
+      { name: "Amanda Clark", username: "amandaclark", time: "Jul 13, 10:10 AM" },
+      { name: "Brian Miller", username: "brianmiller", time: "Jul 13, 10:05 AM" },
+      { name: "Nicole Garcia", username: "nicolegarcia", time: "Jul 13, 10:00 AM" },
+      { name: "Steven Martinez", username: "stevenmartinez", time: "Jul 13, 9:55 AM" }
+    ]
   },
   {
     id: '3',
@@ -122,7 +160,24 @@ const sampleConversations: Conversation[] = [
       views: 856,
       loves: 67,
       comments: 15
-    }
+    },
+    commentedBy: [
+      { name: "Mark Wilson", username: "markwilson", time: "Jul 13, 11:20 AM" },
+      { name: "Jennifer Lee", username: "jenniferlee", time: "Jul 13, 11:15 AM" },
+      { name: "Robert Chen", username: "robertchen", time: "Jul 13, 11:10 AM" },
+      { name: "Michelle Park", username: "michellepark", time: "Jul 13, 11:05 AM" },
+      { name: "Andrew Kim", username: "andrewkim", time: "Jul 13, 11:00 AM" },
+      { name: "Stephanie Brown", username: "stephaniebrown", time: "Jul 13, 10:55 AM" },
+      { name: "Jason Davis", username: "jasondavis", time: "Jul 13, 10:50 AM" },
+      { name: "Melissa Johnson", username: "melissajohnson", time: "Jul 13, 10:45 AM" },
+      { name: "Eric Wilson", username: "ericwilson", time: "Jul 13, 10:40 AM" },
+      { name: "Catherine Lee", username: "catherinelee", time: "Jul 13, 10:35 AM" },
+      { name: "Patrick Chen", username: "patrickchen", time: "Jul 13, 10:30 AM" },
+      { name: "Rebecca Park", username: "rebeccapark", time: "Jul 13, 10:25 AM" },
+      { name: "Gregory Kim", username: "gregorykim", time: "Jul 13, 10:20 AM" },
+      { name: "Vanessa Brown", username: "vanessabrown", time: "Jul 13, 10:15 AM" },
+      { name: "Timothy Davis", username: "timothydavis", time: "Jul 13, 10:10 AM" }
+    ]
   },
   {
     id: '4',
@@ -144,7 +199,21 @@ const sampleConversations: Conversation[] = [
       views: 642,
       loves: 45,
       comments: 12
-    }
+    },
+    commentedBy: [
+      { name: "Laura Wilson", username: "laurawilson", time: "Jul 13, 11:25 AM" },
+      { name: "James Chen", username: "jameschen", time: "Jul 13, 11:20 AM" },
+      { name: "Ashley Park", username: "ashleypark", time: "Jul 13, 11:15 AM" },
+      { name: "Michael Kim", username: "michaelkim", time: "Jul 13, 11:10 AM" },
+      { name: "Sarah Brown", username: "sarahbrown", time: "Jul 13, 11:05 AM" },
+      { name: "David Davis", username: "daviddavis", time: "Jul 13, 11:00 AM" },
+      { name: "Emily Johnson", username: "emilyjohnson", time: "Jul 13, 10:55 AM" },
+      { name: "Christopher Wilson", username: "christopherwilson", time: "Jul 13, 10:50 AM" },
+      { name: "Amanda Lee", username: "amandalee", time: "Jul 13, 10:45 AM" },
+      { name: "Jonathan Chen", username: "jonathanchen", time: "Jul 13, 10:40 AM" },
+      { name: "Rachel Park", username: "rachelpark", time: "Jul 13, 10:35 AM" },
+      { name: "Kevin Kim", username: "kevinkim", time: "Jul 13, 10:30 AM" }
+    ]
   },
   {
     id: '5',
@@ -166,7 +235,18 @@ const sampleConversations: Conversation[] = [
       views: 512,
       loves: 38,
       comments: 9
-    }
+    },
+    commentedBy: [
+      { name: "Thomas Wilson", username: "thomaswilson", time: "Jul 13, 11:30 AM" },
+      { name: "Natalie Chen", username: "nataliechen", time: "Jul 13, 11:25 AM" },
+      { name: "Brandon Park", username: "brandonpark", time: "Jul 13, 11:20 AM" },
+      { name: "Hannah Kim", username: "hannahkim", time: "Jul 13, 11:15 AM" },
+      { name: "Justin Brown", username: "justinbrown", time: "Jul 13, 11:10 AM" },
+      { name: "Megan Davis", username: "megandavis", time: "Jul 13, 11:05 AM" },
+      { name: "Aaron Johnson", username: "aaronjohnson", time: "Jul 13, 11:00 AM" },
+      { name: "Katherine Wilson", username: "katherinewilson", time: "Jul 13, 10:55 AM" },
+      { name: "Sean Lee", username: "seanlee", time: "Jul 13, 10:50 AM" }
+    ]
   },
 ];
 
@@ -219,6 +299,13 @@ const Home: React.FC = () => {
     }
   };
 
+  // Add state and modal for likes at the top of the Home component:
+  const [showLikesModal, setShowLikesModal] = useState<string | null>(null);
+  const [showCommentsModal, setShowCommentsModal] = useState<string | null>(null);
+  // Add at the top of Home component:
+  const [loved, setLoved] = useState(false);
+  const [lovesCount, setLovesCount] = useState(sampleConversations[0].engagement.loves);
+
   return (
     <>
       <Navbar />
@@ -227,9 +314,9 @@ const Home: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(180px,220px)_minmax(0,1fr)_minmax(180px,220px)] gap-6 justify-center overflow-visible">
             {/* Trending Sidebar */}
             <aside className="lg:col-span-1 pt-2 flex flex-col items-end min-w-[180px] max-w-[220px]">
-              <Card className="w-full bg-muted backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40 overflow-visible">
+              <Card className="w-full bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40 overflow-visible">
                 <div className="sticky top-32 w-full p-4">
-                  <h3 className="text-sm font-semibold text-foreground/80 tracking-wider uppercase mb-4">TRENDING</h3>
+                  <h3 className="text-sm font-semibold tracking-wider uppercase mb-4 text-foreground dark:text-white">TRENDING</h3>
                   <ul className="space-y-4 w-full">
                     {[
                       { people: [
@@ -242,12 +329,12 @@ const Home: React.FC = () => {
                       ], topic: 'Cloud wars: Google vs Microsoft, cloud infrastructure, AI integration, enterprise solutions, developer tools, global reach.', recentReply: 'Cloud is the new battleground.', views: '1.1k' },
                       { people: [
                         { name: 'Mark Zuckerberg', avatar: '', bio: 'CEO of Meta (Facebook). Building the metaverse, social platforms, and advancing privacy and connectivity.' },
-                        { name: 'Tim Cook', avatar: '', bio: 'CEO of Apple. Focused on privacy, innovation, and creating products that enrich people’s lives.' }
+                        { name: 'Tim Cook', avatar: '', bio: 'CEO of Apple. Focused on privacy, innovation, and creating products that enrich people\'s lives.' }
                       ], topic: 'Privacy in the social era, data protection laws, user experience, business models, encryption, transparency, user trust.', recentReply: 'Privacy is a fundamental right.', views: '1.0k' },
                       { people: [
                         { name: 'Gaurab Boli', avatar: '', bio: 'Founder of Arena. Exploring the future of digital communication, collaboration, and online communities.' },
                         { name: 'Sam Chen', avatar: '', bio: 'Tech enthusiast, writer, and builder in public. Passionate about the intersection of technology and society.' }
-                      ], topic: 'The future of digital communication, messaging apps, real-time collaboration, voice tech, privacy, global reach.', recentReply: 'Excited for what’s next!', views: '900' },
+                      ], topic: 'The future of digital communication, messaging apps, real-time collaboration, voice tech, privacy, global reach.', recentReply: 'Excited for what\'s next!', views: '900' },
                       { people: [
                         { name: 'Alex Rivera', avatar: '', bio: 'Product designer and Web3 explorer. Building communities and designing for the next generation of the internet.' },
                         { name: 'Sarah Kim', avatar: '', bio: 'Community lead and digital anthropologist. Studying online culture, engagement, and digital identity.' }
@@ -257,22 +344,22 @@ const Home: React.FC = () => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <li className="py-1 px-2 rounded-lg w-full flex flex-col items-start transition-all duration-200 cursor-pointer hover:bg-muted/80 hover:shadow-lg hover:rounded-xl hover:px-3 hover:py-2 hover:scale-[1.03]">
-                              <div className="text-sm font-normal text-foreground/80 leading-tight w-full">{item.people[0].name}</div>
-                              <div className="text-sm text-muted-foreground leading-tight w-full">with {item.people[1].name}</div>
+                              <div className="text-sm font-medium text-foreground/90 leading-tight w-full">{item.people[0].name}</div>
+                              <div className="text-sm text-foreground/70 leading-tight w-full">with {item.people[1].name}</div>
                             </li>
                           </TooltipTrigger>
                           <TooltipContent side="right" align="center" className="z-[9999] rounded-xl px-5 py-4 max-w-xs bg-muted shadow-xl">
                             <div className="flex flex-col gap-1.5">
                               {[0, 1].map(i => (
-                                <div key={i} className="text-[14px] text-foreground/80">
+                                <div key={i} className="text-base font-medium text-foreground/90">
                                   <span className="font-semibold mr-1">{item.people[i].name}:</span>
-                                  <span className="text-xs text-muted-foreground">{item.people[i].bio}</span>
+                                  <span className="text-sm text-foreground/80 font-normal">{item.people[i].bio}</span>
                                 </div>
                               ))}
                               <Separator className="my-2 bg-gradient-to-r from-transparent via-muted-foreground/30 to-transparent" />
-                              <div className="text-[14px] text-foreground/80 mb-0.5">
+                              <div className="text-base font-medium text-foreground/90 mb-0.5">
                                 <span className="font-semibold mr-1">Topics:</span>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-sm text-foreground/80">
                                   {item.topic.split(/[,•|]/).map((topic, idx, arr) => (
                                     <span key={idx}>{topic.trim()}{idx < arr.length - 1 ? ', ' : ''}</span>
                                   ))}
@@ -291,7 +378,7 @@ const Home: React.FC = () => {
             {/* Center Content */}
             <main className="lg:col-span-1 flex flex-col items-center space-y-4">
               {/* Discussion Input Card */}
-              <Card className="w-full max-w-[1400px] mx-auto bg-background/50 backdrop-blur-sm shadow-sm rounded-xl border border-border/30 z-0 overflow-visible">
+              <Card className="w-full max-w-[1400px] mx-auto bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-sm rounded-xl border border-border/30 z-0 overflow-visible transition-all duration-300 ease-out hover:shadow-lg hover:scale-[1.01] hover:border-primary/20 hover:-translate-y-0.5">
                 <CardContent className="p-1 flex items-center gap-2">
                   <Avatar className="h-7 w-7">
                     <AvatarImage src={currentUser?.photoURL || undefined} />
@@ -302,13 +389,13 @@ const Home: React.FC = () => {
                   <textarea
                     ref={textareaRef}
                     placeholder="Start a new discussion..."
-                    className="flex-1 min-h-[1.5rem] max-h-[10rem] bg-transparent border-0 outline-none resize-none text-[15px] font-normal text-foreground placeholder:text-muted-foreground/70 rounded-xl px-1 py-0 leading-[1.5] focus:ring-1 focus:ring-primary/20 transition-shadow overflow-y-auto"
+                    className="flex-1 min-h-[1.5rem] max-h-[10rem] bg-transparent border-0 outline-none resize-none text-[15px] font-normal text-foreground placeholder:text-foreground/80 dark:placeholder:text-white/80 rounded-xl px-1 py-0 leading-[1.5] focus:ring-1 focus:ring-primary/20 transition-shadow overflow-y-auto"
                     style={{boxShadow: 'none', overflow: 'hidden'}}
                     rows={1}
                     onInput={handleTextareaInput}
                   />
                   <button type="button" className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/50 text-muted-foreground hover:bg-muted/70 transition-colors duration-200 shadow-sm focus:outline-none focus:ring-1 focus:ring-primary/20">
-                    <ArrowUp className="h-5 w-5" />
+                    <ArrowUp className="h-5 w-5 text-foreground/80 dark:text-white/80" />
                   </button>
                 </CardContent>
               </Card>
@@ -316,18 +403,14 @@ const Home: React.FC = () => {
               {/* Main Conversations */}
               <div className="space-y-2 w-full max-w-[1400px] mx-auto">
                 {sampleConversations.map((conversation) => (
-                  <div key={conversation.id} className="overflow-hidden transition-all duration-200 bg-muted backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40 cursor-pointer hover:bg-muted/80">
+                  <div key={conversation.id} className="overflow-hidden transition-all duration-300 ease-out bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40 cursor-pointer hover:bg-muted/80 hover:shadow-xl hover:scale-[1.02] hover:border-primary/20 hover:-translate-y-1">
                     <div className="p-0">
                       {/* Main Topic as Header */}
-                      <div className="bg-transparent px-6 pt-4 pb-2 border-0 border-b border-muted/20">
-                        <h2 className={`tracking-tight mb-1 ${
-                          conversation.id === '1' || conversation.id === '2'
-                            ? 'text-lg font-normal text-foreground/90'
-                            : 'text-lg font-semibold text-foreground/90'
-                        }`}>
+                      <div className="bg-transparent px-6 pt-2 pb-2 border-0 border-b border-muted/20">
+                        <h2 className="text-lg font-medium tracking-tight text-foreground/90 dark:text-white/90 mb-1">
                           {conversation.mainTopic}
                         </h2>
-                        <hr className="border-muted/20 mb-2" />
+                        <hr className="border-foreground/10 mb-2" />
                         {/* Topics - moved below profiles for Future of Podcast card */}
                         {conversation.id !== '1' && (
                           <div className="flex flex-wrap gap-1.5 mb-4">
@@ -341,25 +424,43 @@ const Home: React.FC = () => {
                         <div className="grid grid-cols-2 gap-4 mb-6">
                           {conversation.participants.map((participant, index) => (
                             <div key={participant.username} className="flex items-center gap-4 w-full min-h-[4rem]">
-                              <Avatar className="h-20 w-20 rounded-xl flex-shrink-0">
-                                {participant.avatar ? (
-                                  <AvatarImage src={participant.avatar} alt={participant.name} className="rounded-xl" />
-                                ) : (
-                                  <AvatarFallback className="rounded-xl text-lg font-semibold bg-muted text-muted-foreground">
-                                    {participant.name.split(' ').map(n => n[0]).join('')}
-                                  </AvatarFallback>
-                                )}
-                              </Avatar>
+                              <Link
+                                to={`/profile/${participant.username}`}
+                                className="group"
+                                onClick={e => e.stopPropagation()}
+                                tabIndex={0}
+                                aria-label={`View ${participant.name}'s profile`}
+                              >
+                                <Avatar className="h-20 w-20 rounded-xl flex-shrink-0 transition-transform group-hover:ring-2 group-hover:ring-primary group-hover:scale-105">
+                                  {participant.avatar ? (
+                                    <AvatarImage src={participant.avatar} alt={participant.name} className="rounded-xl" />
+                                  ) : (
+                                    <AvatarFallback className="rounded-xl text-lg font-semibold bg-muted text-muted-foreground">
+                                      {participant.name.split(' ').map(n => n[0]).join('')}
+                                    </AvatarFallback>
+                                  )}
+                                </Avatar>
+                              </Link>
                               <div className="flex flex-col justify-center h-full min-h-[4rem] w-full">
-                                <span className="font-semibold text-sm text-foreground/70 tracking-tight mb-0.5 whitespace-nowrap">{participant.name}</span>
-                                <span className="text-xs text-muted-foreground/80 break-words w-full" style={{maxWidth: '280ch'}}>{participant.bio}</span>
+                                <Link
+                                  to={`/profile/${participant.username}`}
+                                  className="font-semibold text-sm text-foreground tracking-tight mb-0.5 whitespace-nowrap transition-colors hover:underline hover:font-bold focus:underline focus:font-bold"
+                                  onClick={e => e.stopPropagation()}
+                                  tabIndex={0}
+                                  aria-label={`View ${participant.name}'s profile`}
+                                >
+                                  {participant.name}
+                                </Link>
+                                <span className="text-xs text-foreground/60 break-words w-full" style={{maxWidth: '280ch'}}>
+                                  {participant.bio.length > 140 ? participant.bio.slice(0, 140) + '…' : participant.bio}
+                                </span>
                               </div>
                             </div>
                           ))}
                         </div>
                         {conversation.id === '1' && (
                           <div className="mb-4 flex items-center gap-2 w-full" style={{minHeight: '1.5rem'}}>
-                            <span className="text-xs font-semibold text-foreground/80 mr-1 whitespace-nowrap flex items-center">Topics:</span>
+                            <span className="text-sm font-medium text-foreground/90 mr-1 whitespace-nowrap flex items-center">Topics:</span>
                             <div className="relative flex-1 overflow-x-hidden flex items-center" style={{height: '1.5rem'}}>
                               <style>{`
                                 @keyframes arena-scroll-left {
@@ -370,7 +471,7 @@ const Home: React.FC = () => {
                               <div
                                 className="flex items-center gap-1 flex-nowrap whitespace-nowrap"
                                 style={{
-                                  animation: 'arena-scroll-left 24s linear infinite',
+                                  animation: 'arena-scroll-left 16s linear infinite',
                                   willChange: 'transform',
                                   minWidth: '100%',
                                 }}
@@ -379,7 +480,7 @@ const Home: React.FC = () => {
                                   <TooltipProvider key={idx} delayDuration={100}>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <span className="text-xs text-muted-foreground/90 font-normal cursor-pointer px-1 flex items-center" style={{lineHeight: '1.5rem'}}>
+                                        <span className="text-sm text-foreground/90 font-normal cursor-pointer px-1 flex items-center" style={{lineHeight: '1.5rem'}}>
                                           {topic}{idx < conversation.otherTopics.length * 2 - 1 ? ' | ' : ''}
                                         </span>
                                       </TooltipTrigger>
@@ -430,33 +531,99 @@ const Home: React.FC = () => {
                             </div>
                           </div>
                         )}
-                        <div className="flex items-center gap-6 pt-2 border-t border-muted/15">
-                          <div className="flex items-center gap-2">
-                            <Eye className="h-4 w-4 text-muted-foreground/50" />
-                            <span className="text-xs font-medium text-muted-foreground tracking-tight">
-                              {formatNumber(conversation.engagement.views)}
-                            </span>
+                        <div className="flex items-center justify-between pt-2 border-t border-muted/15">
+                          <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1">
+                              <Eye className="h-4 w-4 text-muted-foreground/50" />
+                              <span className="text-xs font-medium text-muted-foreground tracking-tight">
+                                {formatNumber(conversation.engagement.views)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-0.5">
+                              <button
+                                type="button"
+                                className="flex items-center justify-center focus:outline-none"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setLoved(l => {
+                                    setLovesCount(c => l ? c - 1 : c + 1);
+                                    return !l;
+                                  });
+                                }}
+                                aria-label={loved ? "Remove love" : "Love this"}
+                              >
+                                <Heart className={cn(
+                                  "h-4 w-4 transition-colors",
+                                  loved ? "text-red-500 fill-red-500" : "text-muted-foreground/50 hover:text-primary"
+                                )} />
+                              </button>
+                              <button
+                                type="button"
+                                className="text-xs font-medium text-muted-foreground/80 tracking-tight hover:underline focus:underline px-0.5 bg-transparent"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setShowLikesModal(conversation.id);
+                                }}
+                                aria-label="View people who liked"
+                              >
+                                {formatNumber(lovesCount)}
+                              </button>
+                            </div>
+                            <div className="flex items-center gap-0.5">
+                              <MessageSquare className="h-4 w-4 text-muted-foreground/50" />
+                              <button
+                                type="button"
+                                className="text-xs font-medium text-muted-foreground/80 tracking-tight hover:underline focus:underline px-0.5 bg-transparent"
+                                onClick={e => {
+                                  e.stopPropagation();
+                                  setShowCommentsModal(conversation.id);
+                                }}
+                                aria-label="View people who commented"
+                              >
+                                {formatNumber(conversation.engagement.comments)}
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Heart className="h-4 w-4 text-muted-foreground/50" />
-                            <span className="text-xs font-medium text-muted-foreground/80 tracking-tight">
-                              {formatNumber(conversation.engagement.loves)}
-                            </span>
+                          <div className="flex items-center gap-3">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2"
+                            >
+                              Read
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2"
+                            >
+                              Watch
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2"
+                            >
+                              Listen
+                            </Button>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <MessageSquare className="h-4 w-4 text-muted-foreground/50" />
-                            <span className="text-xs font-medium text-muted-foreground/80 tracking-tight">
-                              {formatNumber(conversation.engagement.comments)}
-                            </span>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2.5"
+                              onClick={() => handleShare(conversation.id)}
+                            >
+                              <Share2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2.5"
+                            >
+                              <Bookmark className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2.5 ml-auto"
-                            onClick={() => handleShare(conversation.id)}
-                          >
-                            <Share2 className="h-4 w-4" />
-                          </Button>
                         </div>
                       </div>
                     </div>
@@ -467,13 +634,13 @@ const Home: React.FC = () => {
 
             {/* Happening Sidebar */}
             <aside className="lg:col-span-1 pt-2 flex flex-col items-end min-w-[180px] max-w-[220px]">
-              <Card className="w-full bg-muted backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40">
+              <Card className="w-full bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40">
                 <div className="sticky top-32 w-full p-4">
-                  <h3 className="text-sm font-semibold text-foreground/80 tracking-wider uppercase mb-4">HAPPENING</h3>
+                  <h3 className="text-sm font-semibold tracking-wider uppercase mb-4 text-foreground dark:text-white">HAPPENING</h3>
                   <ul className="space-y-4 w-full">
                     {[
                       { people: [
-                        { name: 'Ada Lovelace', bio: 'Mathematician, writer, and the world’s first computer programmer. Pioneer for women in STEM.' },
+                        { name: 'Ada Lovelace', bio: 'Mathematician, writer, and the world\'s first computer programmer. Pioneer for women in STEM.' },
                         { name: 'Grace Hopper', bio: 'Computer scientist, US Navy rear admiral, and inventor of the first compiler. Advocate for accessible programming.' }
                       ], topic: 'Women in tech, breaking barriers, inspiring leaders, STEM education, programming history, legacy.' },
                       { people: [
@@ -501,22 +668,22 @@ const Home: React.FC = () => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <li className="py-1 px-2 rounded-lg w-full flex flex-col items-start transition-all duration-200 cursor-pointer hover:bg-muted/80 hover:shadow-lg hover:rounded-xl hover:px-3 hover:py-2 hover:scale-[1.03]">
-                              <div className="text-sm font-normal text-foreground/80 leading-tight w-full">{item.people[0].name}</div>
-                              <div className="text-sm text-muted-foreground leading-tight w-full">with {item.people[1].name}</div>
+                              <div className="text-sm font-medium text-foreground/90 leading-tight w-full">{item.people[0].name}</div>
+                              <div className="text-sm text-foreground/70 leading-tight w-full">with {item.people[1].name}</div>
                             </li>
                           </TooltipTrigger>
                           <TooltipContent side="right" align="center" className="z-[9999] rounded-xl px-5 py-4 max-w-xs bg-muted shadow-xl">
                             <div className="flex flex-col gap-1.5">
                               {[0, 1].map(i => (
-                                <div key={i} className="text-[14px] text-foreground/80">
+                                <div key={i} className="text-base font-medium text-foreground/90">
                                   <span className="font-semibold mr-1">{item.people[i].name}:</span>
-                                  <span className="text-xs text-muted-foreground">{item.people[i].bio}</span>
+                                  <span className="text-sm text-foreground/80 font-normal">{item.people[i].bio}</span>
                                 </div>
                               ))}
                               <Separator className="my-2 bg-gradient-to-r from-transparent via-muted-foreground/30 to-transparent" />
-                              <div className="text-[14px] text-foreground/80 mb-0.5">
+                              <div className="text-base font-medium text-foreground/90 mb-0.5">
                                 <span className="font-semibold mr-1">Topics:</span>
-                                <span className="text-xs text-muted-foreground">
+                                <span className="text-sm text-foreground/80">
                                   {item.topic.split(/[,•|]/).map((topic, idx, arr) => (
                                     <span key={idx}>{topic.trim()}{idx < arr.length - 1 ? ', ' : ''}</span>
                                   ))}
@@ -534,6 +701,54 @@ const Home: React.FC = () => {
           </div>
         </div>
       </TransitionWrapper>
+      {showLikesModal && sampleConversations.find(c => c.id === showLikesModal)?.likedBy && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowLikesModal(null)}>
+          <div className="bg-background rounded-xl shadow-xl p-6 min-w-[340px] max-w-[95vw] max-h-[80vh] overflow-y-auto relative" onClick={e => e.stopPropagation()}>
+            <button className="absolute top-4 right-4 text-2xl text-muted-foreground hover:text-primary focus:outline-none" onClick={() => setShowLikesModal(null)} aria-label="Close">×</button>
+            <h3 className="text-lg font-semibold mb-4">Reactions</h3>
+            <ul className="divide-y divide-muted-foreground/10">
+              {sampleConversations.find(c => c.id === showLikesModal)?.likedBy?.map(user => (
+                <li key={user.username} className="flex items-center justify-between py-3">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-base font-semibold text-muted-foreground">
+                      {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground text-base leading-tight">{user.name}</div>
+                      <div className="text-sm text-muted-foreground leading-tight">@{user.username}</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground whitespace-nowrap ml-4">{user.time}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+      {showCommentsModal && sampleConversations.find(c => c.id === showCommentsModal)?.commentedBy && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowCommentsModal(null)}>
+          <div className="bg-background rounded-xl shadow-xl p-6 min-w-[340px] max-w-[95vw] max-h-[80vh] overflow-y-auto relative" onClick={e => e.stopPropagation()}>
+            <button className="absolute top-4 right-4 text-2xl text-muted-foreground hover:text-primary focus:outline-none" onClick={() => setShowCommentsModal(null)} aria-label="Close">×</button>
+            <h3 className="text-lg font-semibold mb-4">Comments</h3>
+            <ul className="divide-y divide-muted-foreground/10">
+              {sampleConversations.find(c => c.id === showCommentsModal)?.commentedBy?.map(user => (
+                <li key={user.username} className="flex items-center justify-between py-3">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-base font-semibold text-muted-foreground">
+                      {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground text-base leading-tight">{user.name}</div>
+                      <div className="text-sm text-muted-foreground leading-tight">@{user.username}</div>
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground whitespace-nowrap ml-4">{user.time}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </>
   );
 };
