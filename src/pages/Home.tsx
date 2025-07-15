@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import TransitionWrapper from '@/components/TransitionWrapper';
@@ -39,7 +39,7 @@ interface Conversation {
   id: string;
   mainTopic: string;
   otherTopics: string[];
-  participants: [Participant, Participant];
+  participants: Participant[];
   engagement: {
     views: number;
     loves: number;
@@ -47,6 +47,8 @@ interface Conversation {
   };
   likedBy?: { name: string; username: string; time: string }[];
   commentedBy?: { name: string; username: string; time: string }[];
+  isNewDiscussion?: boolean;
+  postContent?: string;
 }
 
 const sampleConversations: Conversation[] = [
@@ -92,6 +94,30 @@ const sampleConversations: Conversation[] = [
       { name: "Sarah Johnson", username: "sarahj", time: "Jul 13, 10:46 AM" },
       { name: "Michael Brown", username: "mikebrown", time: "Jul 13, 10:41 AM" }
     ]
+  },
+  {
+    id: '1.5',
+    mainTopic: "",
+    otherTopics: [
+      "AI-generated content and human creativity",
+      "Job displacement vs. new opportunities",
+      "Ethical considerations in AI art"
+    ],
+    participants: [
+      {
+        name: "Alex Johnson",
+        username: "alexj",
+        avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+        bio: "Creative director and AI enthusiast • Exploring the intersection of human creativity and artificial intelligence • Passionate about ethical AI development",
+      }
+    ],
+    engagement: {
+      views: 0,
+      loves: 0,
+      comments: 0
+    },
+    isNewDiscussion: true,
+    postContent: "I've been thinking a lot about how AI is reshaping the creative landscape. As someone who's worked in design for over a decade, I'm both excited and concerned about what's happening. On one hand, AI tools are democratizing creativity - anyone can now create stunning visuals, write compelling copy, or compose music. But I'm also seeing talented artists struggle as their skills become commoditized. The question isn't just about job displacement, but about what it means to be 'creative' in an age where machines can generate art that rivals human work. I believe the future belongs to those who can collaborate with AI rather than compete against it. We need to focus on the uniquely human aspects of creativity - emotional intelligence, cultural context, and the ability to tell stories that resonate. What do you think? Are we heading toward a creative renaissance or a creative crisis?"
   },
   {
     id: '2',
@@ -252,6 +278,7 @@ const sampleConversations: Conversation[] = [
 
 const Home: React.FC = () => {
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
   
   const handleShare = async (conversationId: string) => {
     try {
@@ -305,6 +332,7 @@ const Home: React.FC = () => {
   // Add at the top of Home component:
   const [loved, setLoved] = useState(false);
   const [lovesCount, setLovesCount] = useState(sampleConversations[0].engagement.loves);
+  const [expandedContent, setExpandedContent] = useState<string | null>(null);
 
   return (
     <>
@@ -403,61 +431,126 @@ const Home: React.FC = () => {
               {/* Main Conversations */}
               <div className="space-y-2 w-full max-w-[1400px] mx-auto">
                 {sampleConversations.map((conversation) => (
-                  <div key={conversation.id} className="overflow-hidden transition-all duration-300 ease-out bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40 cursor-pointer hover:bg-muted/80 hover:shadow-xl hover:scale-[1.02] hover:border-primary/20 hover:-translate-y-1">
+                  <div 
+                    key={conversation.id} 
+                    className="overflow-hidden transition-all duration-300 ease-out bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40 cursor-pointer hover:bg-muted/80 hover:shadow-xl hover:scale-[1.02] hover:border-primary/20 hover:-translate-y-1"
+                    onClick={() => {
+                      if (conversation.id === '1') {
+                        navigate('/conversation/rick-sam');
+                      }
+                    }}
+                  >
                     <div className="p-0">
                       {/* Main Topic as Header */}
                       <div className="bg-transparent px-6 pt-2 pb-2 border-0 border-b border-muted/20">
-                        <h2 className="text-lg font-medium tracking-tight text-foreground/90 dark:text-white/90 mb-1">
-                          {conversation.mainTopic}
-                        </h2>
-                        <hr className="border-foreground/10 mb-2" />
-                        {/* Topics - moved below profiles for Future of Podcast card */}
-                        {conversation.id !== '1' && (
-                          <div className="flex flex-wrap gap-1.5 mb-4">
-                            {conversation.otherTopics.map((topic) => (
-                              <Badge key={topic} variant="secondary" className="px-2 py-0.5 text-xs font-normal bg-muted/40 text-muted-foreground/60 border-muted/30 hover:bg-muted/50 hover:text-muted-foreground/70 transition-colors">
-                                {topic}
-                              </Badge>
-                            ))}
-                          </div>
+                        {conversation.mainTopic && (
+                          <>
+                            <h2 className="text-lg font-medium tracking-tight text-foreground/90 dark:text-white/90 mb-1">
+                              {conversation.mainTopic}
+                            </h2>
+                            <hr className="border-foreground/10 mb-2" />
+                          </>
                         )}
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                          {conversation.participants.map((participant, index) => (
-                            <div key={participant.username} className="flex items-center gap-4 w-full min-h-[4rem]">
+
+                        {conversation.isNewDiscussion ? (
+                          <div className="mb-6">
+                            <div className="flex items-center gap-4 w-full min-h-[4rem]">
                               <Link
-                                to={`/profile/${participant.username}`}
+                                to={`/profile/${conversation.participants[0].username}`}
                                 className="group"
                                 onClick={e => e.stopPropagation()}
                                 tabIndex={0}
-                                aria-label={`View ${participant.name}'s profile`}
+                                aria-label={`View ${conversation.participants[0].name}'s profile`}
                               >
                                 <Avatar className="h-20 w-20 rounded-xl flex-shrink-0 transition-transform group-hover:ring-2 group-hover:ring-primary group-hover:scale-105">
-                                  {participant.avatar ? (
-                                    <AvatarImage src={participant.avatar} alt={participant.name} className="rounded-xl" />
+                                  {conversation.participants[0].avatar ? (
+                                    <AvatarImage src={conversation.participants[0].avatar} alt={conversation.participants[0].name} className="rounded-xl" />
                                   ) : (
                                     <AvatarFallback className="rounded-xl text-lg font-semibold bg-muted text-muted-foreground">
-                                      {participant.name.split(' ').map(n => n[0]).join('')}
+                                      {conversation.participants[0].name.split(' ').map(n => n[0]).join('')}
                                     </AvatarFallback>
                                   )}
                                 </Avatar>
                               </Link>
                               <div className="flex flex-col justify-center h-full min-h-[4rem] w-full">
                                 <Link
-                                  to={`/profile/${participant.username}`}
+                                  to={`/profile/${conversation.participants[0].username}`}
                                   className="font-semibold text-sm text-foreground tracking-tight mb-0.5 whitespace-nowrap transition-colors hover:underline hover:font-bold focus:underline focus:font-bold"
+                                  onClick={e => e.stopPropagation()}
+                                  tabIndex={0}
+                                  aria-label={`View ${conversation.participants[0].name}'s profile`}
+                                >
+                                  {conversation.participants[0].name}
+                                </Link>
+                                <span className="text-xs text-foreground/60 break-words w-full" style={{maxWidth: '280ch'}}>
+                                  {conversation.participants[0].bio.length > 140 ? conversation.participants[0].bio.slice(0, 140) + '…' : conversation.participants[0].bio}
+                                </span>
+                              </div>
+                            </div>
+                            {conversation.postContent && (
+                              <div className="mt-4 mb-4">
+                                <p className="text-sm text-foreground/90 leading-relaxed">
+                                  {expandedContent === conversation.id 
+                                    ? conversation.postContent
+                                    : conversation.postContent.length > 200 
+                                      ? conversation.postContent.slice(0, 200) + '...'
+                                      : conversation.postContent
+                                  }
+                                </p>
+                                {conversation.postContent.length > 200 && (
+                                  <button
+                                    type="button"
+                                    className="text-xs font-medium text-primary hover:text-primary/80 transition-colors mt-2"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedContent(expandedContent === conversation.id ? null : conversation.id);
+                                    }}
+                                  >
+                                    {expandedContent === conversation.id ? 'Show less' : 'Read more'}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-4 mb-6">
+                            {conversation.participants.map((participant, index) => (
+                              <div key={participant.username} className="flex items-center gap-4 w-full min-h-[4rem]">
+                                <Link
+                                  to={`/profile/${participant.username}`}
+                                  className="group"
                                   onClick={e => e.stopPropagation()}
                                   tabIndex={0}
                                   aria-label={`View ${participant.name}'s profile`}
                                 >
-                                  {participant.name}
+                                  <Avatar className="h-20 w-20 rounded-xl flex-shrink-0 transition-transform group-hover:ring-2 group-hover:ring-primary group-hover:scale-105">
+                                    {participant.avatar ? (
+                                      <AvatarImage src={participant.avatar} alt={participant.name} className="rounded-xl" />
+                                    ) : (
+                                      <AvatarFallback className="rounded-xl text-lg font-semibold bg-muted text-muted-foreground">
+                                        {participant.name.split(' ').map(n => n[0]).join('')}
+                                      </AvatarFallback>
+                                    )}
+                                  </Avatar>
                                 </Link>
-                                <span className="text-xs text-foreground/60 break-words w-full" style={{maxWidth: '280ch'}}>
-                                  {participant.bio.length > 140 ? participant.bio.slice(0, 140) + '…' : participant.bio}
-                                </span>
+                                <div className="flex flex-col justify-center h-full min-h-[4rem] w-full">
+                                  <Link
+                                    to={`/profile/${participant.username}`}
+                                    className="font-semibold text-sm text-foreground tracking-tight mb-0.5 whitespace-nowrap transition-colors hover:underline hover:font-bold focus:underline focus:font-bold"
+                                    onClick={e => e.stopPropagation()}
+                                    tabIndex={0}
+                                    aria-label={`View ${participant.name}'s profile`}
+                                  >
+                                    {participant.name}
+                                  </Link>
+                                  <span className="text-xs text-foreground/60 break-words w-full" style={{maxWidth: '280ch'}}>
+                                    {participant.bio.length > 140 ? participant.bio.slice(0, 140) + '…' : participant.bio}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
+                        )}
                         {conversation.id === '1' && (
                           <div className="mb-4 flex items-center gap-2 w-full" style={{minHeight: '1.5rem'}}>
                             <span className="text-sm font-medium text-foreground/90 mr-1 whitespace-nowrap flex items-center">Topics:</span>
@@ -497,7 +590,7 @@ const Home: React.FC = () => {
                         {/* Horizontal scrolling topics below profiles for Why Public Text Debates Matter card */}
                         {conversation.id === '2' && (
                           <div className="mb-4 flex items-center gap-2 w-full" style={{minHeight: '1.5rem'}}>
-                            <span className="text-xs font-semibold text-foreground/80 mr-1 whitespace-nowrap flex items-center">Topics:</span>
+                            <span className="text-sm font-medium text-foreground/90 mr-1 whitespace-nowrap flex items-center">Topics:</span>
                             <div className="relative flex-1 overflow-x-hidden flex items-center" style={{height: '1.5rem'}}>
                               <style>{`
                                 @keyframes arena-scroll-left-2 {
@@ -517,7 +610,7 @@ const Home: React.FC = () => {
                                   <TooltipProvider key={idx} delayDuration={100}>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <span className="text-xs text-muted-foreground/90 font-normal cursor-pointer px-1 flex items-center" style={{lineHeight: '1.5rem'}}>
+                                        <span className="text-sm text-foreground/90 font-normal cursor-pointer px-1 flex items-center" style={{lineHeight: '1.5rem'}}>
                                           {topic}{idx < conversation.otherTopics.length * 2 - 1 ? ' | ' : ''}
                                         </span>
                                       </TooltipTrigger>
@@ -531,83 +624,73 @@ const Home: React.FC = () => {
                             </div>
                           </div>
                         )}
-                        <div className="flex items-center justify-between pt-2 border-t border-muted/15">
-                          <div className="flex items-center gap-1">
-                            <div className="flex items-center gap-1">
-                              <Eye className="h-4 w-4 text-muted-foreground/50" />
-                              <span className="text-xs font-medium text-muted-foreground tracking-tight">
-                                {formatNumber(conversation.engagement.views)}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-0.5">
-                              <button
-                                type="button"
-                                className="flex items-center justify-center focus:outline-none"
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  setLoved(l => {
-                                    setLovesCount(c => l ? c - 1 : c + 1);
-                                    return !l;
-                                  });
-                                }}
-                                aria-label={loved ? "Remove love" : "Love this"}
-                              >
-                                <Heart className={cn(
-                                  "h-4 w-4 transition-colors",
-                                  loved ? "text-red-500 fill-red-500" : "text-muted-foreground/50 hover:text-primary"
-                                )} />
-                              </button>
-                              <button
-                                type="button"
-                                className="text-xs font-medium text-muted-foreground/80 tracking-tight hover:underline focus:underline px-0.5 bg-transparent"
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  setShowLikesModal(conversation.id);
-                                }}
-                                aria-label="View people who liked"
-                              >
-                                {formatNumber(lovesCount)}
-                              </button>
-                            </div>
-                            <div className="flex items-center gap-0.5">
-                              <MessageSquare className="h-4 w-4 text-muted-foreground/50" />
-                              <button
-                                type="button"
-                                className="text-xs font-medium text-muted-foreground/80 tracking-tight hover:underline focus:underline px-0.5 bg-transparent"
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  setShowCommentsModal(conversation.id);
-                                }}
-                                aria-label="View people who commented"
-                              >
-                                {formatNumber(conversation.engagement.comments)}
-                              </button>
-                            </div>
+                        <div className="flex items-center gap-6 pt-2 border-t border-muted/15">
+                          <div className="flex items-center gap-2">
+                            <Eye className="h-4 w-4 text-muted-foreground/50" />
+                            <span className="text-xs font-medium text-muted-foreground tracking-tight">
+                              {formatNumber(conversation.engagement.views)}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-3">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2"
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              className="flex items-center justify-center focus:outline-none"
+                              onClick={e => {
+                                e.stopPropagation();
+                                setLoved(l => {
+                                  setLovesCount(c => l ? c - 1 : c + 1);
+                                  return !l;
+                                });
+                              }}
+                              aria-label={loved ? "Remove love" : "Love this"}
                             >
-                              Read
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2"
+                              <Heart className={cn(
+                                "h-4 w-4 transition-colors",
+                                loved ? "text-red-500 fill-red-500" : "text-muted-foreground/50 hover:text-primary"
+                              )} />
+                            </button>
+                            <button
+                              type="button"
+                              className="text-xs font-medium text-muted-foreground/80 tracking-tight hover:underline focus:underline px-1 bg-transparent"
+                              onClick={e => {
+                                e.stopPropagation();
+                                setShowLikesModal(conversation.id);
+                              }}
+                              aria-label="View people who liked"
                             >
-                              Watch
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2"
-                            >
-                              Listen
-                            </Button>
+                              {formatNumber(lovesCount)}
+                            </button>
                           </div>
-                          <div className="flex items-center gap-1">
+                          <div className="flex items-center gap-2">
+                            <MessageSquare className="h-4 w-4 text-muted-foreground/50" />
+                            <button
+                              type="button"
+                              className="text-xs font-medium text-muted-foreground/80 tracking-tight hover:underline focus:underline px-1 bg-transparent"
+                              onClick={e => {
+                                e.stopPropagation();
+                                setShowCommentsModal(conversation.id);
+                              }}
+                              aria-label="View people who commented"
+                            >
+                              {formatNumber(conversation.engagement.comments)}
+                            </button>
+                          </div>
+                          {conversation.isNewDiscussion && (
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors h-7 px-2.5"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  // Handle text with Alex functionality
+                                }}
+                              >
+                                Start a conversation
+                              </Button>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 ml-auto">
                             <Button
                               variant="ghost"
                               size="sm"

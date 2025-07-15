@@ -21,6 +21,7 @@ import Notifications from "./pages/Notifications";
 import NotFound from "./pages/NotFound";
 import PublicProfile from "./pages/PublicProfile";
 import Conversation from "./pages/Conversation";
+import RickSamConversation from "./pages/RickSamConversation";
 import { AuthProvider } from './context/AuthContext';
 import AdminDashboard from '@/pages/AdminDashboard';
 
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/debates" element={<ProtectedRoute><Debates /></ProtectedRoute>} />
               <Route path="/debates/:id" element={<ProtectedRoute><DebateRoom /></ProtectedRoute>} />
               <Route path="/text/:id" element={<ProtectedRoute><Conversation /></ProtectedRoute>} />
+              <Route path="/conversation/rick-sam" element={<RickSamConversation />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/invite" element={<InviteUsers />} />
               <Route path="/invite/:username" element={<InvitePreview />} />
