@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ArrowLeft, Heart, MessageSquare, Eye, ArrowUp, ImagePlus, Mic, MicOff, ChevronLeft, ChevronRight, CornerUpLeft, X, Pin } from 'lucide-react';
+import PodcastPlayer from '@/components/PodcastPlayer';
 import { cn } from '@/lib/utils';
 
 interface LoveReaction {
@@ -258,10 +259,38 @@ const RickSamConversation: React.FC = () => {
   const [activeMessageId, setActiveMessageId] = useState<string | null>(null);
   const [showLoveReactions, setShowLoveReactions] = useState<string | null>(null);
   const [showComments, setShowComments] = useState<string | null>(null);
+  const [showScrollArrow, setShowScrollArrow] = useState(false);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  
+  // Podcast player state
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentMode, setCurrentMode] = useState<'audio' | 'video'>('audio');
+  const [progress, setProgress] = useState(0);
+  const [duration] = useState(180); // 3 minutes in seconds
+  const [volume, setVolume] = useState(80);
+  const [speed, setSpeed] = useState(1);
+  const [currentSpeaker, setCurrentSpeaker] = useState<string>('rick');
+  
+  const speakers = [
+    { id: 'rick', name: 'Rick Harris', username: 'rickharris', color: '#3B82F6' },
+    { id: 'sam', name: 'Sam Chen', username: 'samc', color: '#10B981' }
+  ];
 
   const handleTopicChange = (topicId: number) => {
     setCurrentTopicId(topicId);
     setMessages(topicMessages[topicId] || []);
+    // Check scroll state after topic change
+    setTimeout(() => handleScroll(), 100);
+  };
+
+  const handleScroll = () => {
+    if (messagesRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messagesRef.current;
+      const hasScrollableContent = scrollHeight > clientHeight;
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px threshold
+      
+      setShowScrollArrow(hasScrollableContent && !isAtBottom);
+    }
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -275,11 +304,40 @@ const RickSamConversation: React.FC = () => {
     });
   };
 
+  // Check scroll state on mount and when messages change
+  useEffect(() => {
+    handleScroll();
+  }, [messages]);
+
+  // Mock audio progress simulation
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= duration) {
+            setIsPlaying(false);
+            return 0;
+          }
+          return prev + 1;
+        });
+      }, 1000 / speed);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, duration, speed]);
+
+  // Mock speaker switching based on progress
+  useEffect(() => {
+    const speakerSwitchPoints = [30, 60, 90, 120, 150]; // Switch speakers every 30 seconds
+    const currentSpeakerIndex = Math.floor(progress / 30) % 2;
+    setCurrentSpeaker(currentSpeakerIndex === 0 ? 'rick' : 'sam');
+  }, [progress]);
+
   return (
     <>
       <Navbar />
       <TransitionWrapper animation="fade" className="min-h-screen bg-background pt-24 pb-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <Card className="border shadow-sm">
             {/* Header */}
             <div className="border-b bg-muted/30 p-4">
@@ -351,8 +409,12 @@ const RickSamConversation: React.FC = () => {
               )}
 
               {/* Messages Area */}
-              <div className="flex-1 flex flex-col">
-                <CardContent className="p-4">
+              <div className="flex-1 flex flex-col max-h-[65vh] relative">
+                <CardContent 
+                  ref={messagesRef}
+                  className="p-4 overflow-y-auto"
+                  onScroll={handleScroll}
+                >
                   <div className="space-y-6">
                     {messages
                       .filter(m => m.topicId === currentTopicId)
@@ -399,9 +461,38 @@ const RickSamConversation: React.FC = () => {
                       ))}
                   </div>
                 </CardContent>
+                
+                {/* Scroll arrow at bottom */}
+                {showScrollArrow && (
+                  <div className="absolute bottom-2 right-4 flex justify-center">
+                    <div className="w-8 h-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-300/50 dark:border-gray-600/50 rounded-full flex items-center justify-center shadow-lg">
+                      <ArrowUp className="h-4 w-4 text-gray-700 dark:text-gray-200 rotate-180" />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </Card>
+          
+          {/* Podcast Player */}
+          <div className="mt-3">
+            <PodcastPlayer
+              speakers={speakers}
+              currentSpeaker={currentSpeaker}
+              isPlaying={isPlaying}
+              onPlayPause={() => setIsPlaying(!isPlaying)}
+              onSkipBack={() => setProgress(Math.max(0, progress - 10))}
+              onSkipForward={() => setProgress(Math.min(duration, progress + 10))}
+              onSpeedChange={setSpeed}
+              onVolumeChange={setVolume}
+              onModeChange={setCurrentMode}
+              currentMode={currentMode}
+              progress={progress}
+              duration={duration}
+              volume={volume}
+              speed={speed}
+            />
+          </div>
         </div>
       </TransitionWrapper>
 
