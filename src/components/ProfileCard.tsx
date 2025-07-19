@@ -27,6 +27,7 @@ const platforms = [
   { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'bg-[#1877F2]' },
   { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500' },
   { id: 'youtube', name: 'YouTube', icon: Youtube, color: 'bg-[#FF0000]' },
+  { id: 'tiktok', name: 'TikTok', icon: TikTokIcon, color: 'bg-black' },
 ];
 
 interface ProfileCardProps {

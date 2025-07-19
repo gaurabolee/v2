@@ -131,8 +131,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     )}
                   >
                     <span className="flex items-center gap-2">
-                      <span className="text-sm font-medium">{message.sender.name}:</span>
-                      <span className="text-sm whitespace-pre-wrap leading-relaxed ml-1">{message.content}</span>
+                      <span className="text-sm font-medium text-black">{message.sender.name}:</span>
+                      <span className="text-sm whitespace-pre-wrap leading-relaxed ml-1 text-black">{message.content}</span>
                     </span>
                   </div>
                   <div
@@ -168,7 +168,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({
       </div>
       
       {/* Message input */}
-      <div className="border-t p-3">
+      <div className="p-3">
         <div className="flex flex-col">
           {/* Info message about word count */}
           <div className="flex items-center mb-2 text-xs text-muted-foreground gap-2">

@@ -430,7 +430,7 @@ const Home: React.FC = () => {
 
               {/* Main Conversations */}
               <div className="space-y-2 w-full max-w-[1400px] mx-auto">
-                {sampleConversations.map((conversation) => (
+            {sampleConversations.map((conversation) => (
                   <div 
                     key={conversation.id} 
                     className="overflow-hidden transition-all duration-300 ease-out bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40 cursor-pointer hover:bg-muted/80 hover:shadow-xl hover:scale-[1.02] hover:border-primary/20 hover:-translate-y-1"
@@ -441,7 +441,7 @@ const Home: React.FC = () => {
                     }}
                   >
                     <div className="p-0">
-                      {/* Main Topic as Header */}
+                  {/* Main Topic as Header */}
                       <div className="bg-transparent px-6 pt-2 pb-2 border-0 border-b border-muted/20">
                         {conversation.mainTopic && (
                           <>
@@ -511,10 +511,10 @@ const Home: React.FC = () => {
                                 )}
                               </div>
                             )}
-                          </div>
+                  </div>
                         ) : (
                           <div className="grid grid-cols-2 gap-4 mb-6">
-                            {conversation.participants.map((participant, index) => (
+                      {conversation.participants.map((participant, index) => (
                               <div key={participant.username} className="flex items-center gap-4 w-full min-h-[4rem]">
                                 <Link
                                   to={`/profile/${participant.username}`}
@@ -524,14 +524,14 @@ const Home: React.FC = () => {
                                   aria-label={`View ${participant.name}'s profile`}
                                 >
                                   <Avatar className="h-20 w-20 rounded-xl flex-shrink-0 transition-transform group-hover:ring-2 group-hover:ring-primary group-hover:scale-105">
-                                    {participant.avatar ? (
-                                      <AvatarImage src={participant.avatar} alt={participant.name} className="rounded-xl" />
-                                    ) : (
+                            {participant.avatar ? (
+                              <AvatarImage src={participant.avatar} alt={participant.name} className="rounded-xl" />
+                            ) : (
                                       <AvatarFallback className="rounded-xl text-lg font-semibold bg-muted text-muted-foreground">
                                         {participant.name.split(' ').map(n => n[0]).join('')}
                                       </AvatarFallback>
-                                    )}
-                                  </Avatar>
+                            )}
+                          </Avatar>
                                 </Link>
                                 <div className="flex flex-col justify-center h-full min-h-[4rem] w-full">
                                   <Link
@@ -546,10 +546,10 @@ const Home: React.FC = () => {
                                   <span className="text-xs text-foreground/60 break-words w-full" style={{maxWidth: '280ch'}}>
                                     {participant.bio.length > 140 ? participant.bio.slice(0, 140) + '…' : participant.bio}
                                   </span>
-                                </div>
-                              </div>
-                            ))}
                           </div>
+                        </div>
+                      ))}
+                    </div>
                         )}
                         {conversation.id === '1' && (
                           <div className="mb-4 flex items-center gap-2 w-full" style={{minHeight: '1.5rem'}}>
@@ -615,22 +615,22 @@ const Home: React.FC = () => {
                                         </span>
                                       </TooltipTrigger>
                                       <TooltipContent side="top" align="center" className="z-[9999] rounded-xl px-4 py-2 max-w-xs bg-muted shadow-xl text-xs text-foreground/90">
-                                        {topic}
+                          {topic}
                                       </TooltipContent>
                                     </Tooltip>
                                   </TooltipProvider>
-                                ))}
-                              </div>
+                      ))}
+                    </div>
                             </div>
                           </div>
                         )}
                         <div className="flex items-center gap-6 pt-2 border-t border-muted/15">
                           <div className="flex items-center gap-2">
-                            <Eye className="h-4 w-4 text-muted-foreground/50" />
-                            <span className="text-xs font-medium text-muted-foreground tracking-tight">
-                              {formatNumber(conversation.engagement.views)}
-                            </span>
-                          </div>
+                          <Eye className="h-4 w-4 text-muted-foreground/50" />
+                          <span className="text-xs font-medium text-muted-foreground tracking-tight">
+                            {formatNumber(conversation.engagement.views)}
+                          </span>
+                        </div>
                           <div className="flex items-center gap-2">
                             <button
                               type="button"
@@ -660,7 +660,7 @@ const Home: React.FC = () => {
                             >
                               {formatNumber(lovesCount)}
                             </button>
-                          </div>
+                        </div>
                           <div className="flex items-center gap-2">
                             <MessageSquare className="h-4 w-4 text-muted-foreground/50" />
                             <button
@@ -672,9 +672,9 @@ const Home: React.FC = () => {
                               }}
                               aria-label="View people who commented"
                             >
-                              {formatNumber(conversation.engagement.comments)}
+                            {formatNumber(conversation.engagement.comments)}
                             </button>
-                          </div>
+                        </div>
                           {conversation.isNewDiscussion && (
                             <div className="flex items-center gap-2">
                               <Button
@@ -688,7 +688,7 @@ const Home: React.FC = () => {
                               >
                                 Start a conversation
                               </Button>
-                            </div>
+                      </div>
                           )}
                           <div className="flex items-center gap-2 ml-auto">
                             <Button
@@ -778,7 +778,7 @@ const Home: React.FC = () => {
                       </TooltipProvider>
                     ))}
                   </ul>
-                </div>
+                  </div>
               </Card>
             </aside>
           </div>

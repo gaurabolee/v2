@@ -537,9 +537,9 @@ const Conversation: React.FC = () => {
       <Navbar />
       <TransitionWrapper animation="fade" className="min-h-screen bg-background pt-24 pb-24">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="border shadow-sm">
+          <Card className="bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40">
             {/* Header */}
-            <div className="border-b bg-muted/30 p-4">
+            <div className="border-b border-muted/20 bg-muted/50 dark:bg-muted/30 p-4">
               <div className="flex flex-col items-center justify-center relative">
                 <button
                   type="button"
@@ -569,7 +569,7 @@ const Conversation: React.FC = () => {
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </button>
-                  <h3 className="font-medium mb-2">Topics</h3>
+                  <h3 className="font-medium mb-2 text-foreground/80 dark:text-white/80">Topics</h3>
                   <div className="space-y-1">
                   {topics.map((topic) => (
                     <button
@@ -578,8 +578,8 @@ const Conversation: React.FC = () => {
                       className={cn(
                         "w-full text-left px-3 py-2 rounded-lg text-sm transition-colors",
                         currentTopicId === topic.id
-                          ? "bg-primary text-primary-foreground"
-                          : "hover:bg-muted"
+                          ? "bg-muted/60 text-foreground/90 dark:text-white/90 font-medium"
+                          : "hover:bg-muted/40 text-foreground/70 dark:text-white/70"
                       )}
                     >
                       {topic.title}
@@ -610,7 +610,7 @@ const Conversation: React.FC = () => {
                             <>
                               <div className="flex items-center gap-2 mb-1 ml-2">
                                 <span className="text-xs text-muted-foreground">Absolutely, Sam. I think one of the most important aspects of any platform is how it empowers users to express themselves authentically...</span>
-                              </div>
+                            </div>
                               <div className="flex items-baseline gap-2 mb-1 ml-0">
                                 <span className="text-sm font-semibold text-foreground">{message.sender.name}</span>
                                 {activeMessageId === message.id && (
@@ -658,14 +658,14 @@ const Conversation: React.FC = () => {
                               <div className="flex items-center gap-1">
                                 <Eye className="h-3.5 w-3.5" />
                                 <span>{message.engagement.views}</span>
-                              </div>
+                                    </div>
                               <button className="flex items-center gap-1 hover:text-primary transition-colors" onClick={e => { e.stopPropagation(); setReplyToMessage(message); }}>
                                 <CornerUpLeft className="h-3.5 w-3.5" />
                               </button>
                             </div>
                           )}
-                        </div>
-                      ))}
+                          </div>
+                    ))}
                   </div>
                 </CardContent>
 
@@ -681,9 +681,9 @@ const Conversation: React.FC = () => {
                 )}
 
                 {/* Input Area */}
-                <div className="border-t p-4 bg-muted/30">
+                <div className="border-t border-muted/20 p-4">
                   <div className="space-y-3">
-                    <div className="bg-background rounded-lg p-3 space-y-2 border border-input hover:border-primary/50 transition-colors">
+                    <div className="bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm rounded-lg p-3 space-y-2 border border-muted/40 hover:border-primary/50 transition-colors">
                       <textarea
                         ref={textareaRef}
                         value={inputValue}

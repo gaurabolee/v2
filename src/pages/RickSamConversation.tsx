@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { ArrowLeft, Heart, MessageSquare, Eye, ArrowUp, ImagePlus, Mic, MicOff, ChevronLeft, ChevronRight, CornerUpLeft, X, Pin } from 'lucide-react';
+import { ArrowLeft, Heart, MessageSquare, Eye, ArrowUp, ImagePlus, Mic, MicOff, ChevronLeft, ChevronRight, ChevronDown, CornerUpLeft, X, Pin } from 'lucide-react';
 import PodcastPlayer from '@/components/PodcastPlayer';
 import { cn } from '@/lib/utils';
 
@@ -270,6 +270,7 @@ const RickSamConversation: React.FC = () => {
   const [volume, setVolume] = useState(80);
   const [speed, setSpeed] = useState(1);
   const [currentSpeaker, setCurrentSpeaker] = useState<string>('rick');
+  const [showPodcastPlayer, setShowPodcastPlayer] = useState(false);
   
   const speakers = [
     { id: 'rick', name: 'Rick Harris', username: 'rickharris', color: '#3B82F6' },
@@ -338,9 +339,9 @@ const RickSamConversation: React.FC = () => {
       <Navbar />
       <TransitionWrapper animation="fade" className="min-h-screen bg-background pt-24 pb-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="border shadow-sm">
+          <Card className="bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40">
             {/* Header */}
-            <div className="border-b bg-muted/30 p-4">
+            <div className="border-b border-muted/20 bg-muted/50 dark:bg-muted/30 p-4">
               <div className="flex flex-col items-center justify-center relative">
                 <button
                   type="button"
@@ -474,25 +475,39 @@ const RickSamConversation: React.FC = () => {
             </div>
           </Card>
           
-          {/* Podcast Player */}
-          <div className="mt-3">
-            <PodcastPlayer
-              speakers={speakers}
-              currentSpeaker={currentSpeaker}
-              isPlaying={isPlaying}
-              onPlayPause={() => setIsPlaying(!isPlaying)}
-              onSkipBack={() => setProgress(Math.max(0, progress - 10))}
-              onSkipForward={() => setProgress(Math.min(duration, progress + 10))}
-              onSpeedChange={setSpeed}
-              onVolumeChange={setVolume}
-              onModeChange={setCurrentMode}
-              currentMode={currentMode}
-              progress={progress}
-              duration={duration}
-              volume={volume}
-              speed={speed}
-            />
+          {/* Podcast Player Toggle */}
+          <div className="mt-3 flex justify-center">
+            <button
+              onClick={() => setShowPodcastPlayer(!showPodcastPlayer)}
+              className="flex items-center gap-2 px-4 py-2 bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-xl border border-muted/40 hover:bg-muted/80 dark:hover:bg-[#2a2f38] transition-all duration-200"
+            >
+              <Mic className="h-4 w-4" />
+              <span className="text-sm font-medium">Podcast Player</span>
+              <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", showPodcastPlayer && "rotate-180")} />
+            </button>
           </div>
+
+          {/* Podcast Player */}
+          {showPodcastPlayer && (
+            <div className="mt-3">
+              <PodcastPlayer
+                speakers={speakers}
+                currentSpeaker={currentSpeaker}
+                isPlaying={isPlaying}
+                onPlayPause={() => setIsPlaying(!isPlaying)}
+                onSkipBack={() => setProgress(Math.max(0, progress - 10))}
+                onSkipForward={() => setProgress(Math.min(duration, progress + 10))}
+                onSpeedChange={setSpeed}
+                onVolumeChange={setVolume}
+                onModeChange={setCurrentMode}
+                currentMode={currentMode}
+                progress={progress}
+                duration={duration}
+                volume={volume}
+                speed={speed}
+              />
+            </div>
+          )}
         </div>
       </TransitionWrapper>
 

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { Copy, X, Plus, User, Check, Linkedin, Facebook, Instagram, Youtube, ChevronDown, ChevronUp, DollarSign, Clock, FileText, Shield, Upload, CreditCard } from 'lucide-react';
+import { Copy, X, Plus, User, Check, Linkedin, Facebook, Instagram, Youtube, ChevronDown, ChevronUp, DollarSign, Clock, FileText, Shield, Upload, CreditCard, MessageSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -127,17 +127,21 @@ const InviteUsers: React.FC = () => {
 
   // Event type helper functions
   const getEventDisplayText = () => {
-    if (!eventParameter || !eventType) return '';
+    if (!eventType) return '';
     
     if (eventType === 'length') {
+      if (!eventParameter) return '';
       const wordCount = eventParameter === 'custom' ? customWordCount : eventParameter;
       if (!wordCount) return eventParameter === 'custom' ? 'Custom words' : '';
       
       const timeText = getTimePeriodText();
       return timeText ? `${wordCount} words over ${timeText}` : `${wordCount} words`;
     } else if (eventType === 'time') {
+      if (!eventParameter) return '';
       const duration = eventParameter === 'custom' ? customDuration : eventParameter;
       return duration ? `${duration} min` : 'Custom min';
+    } else if (eventType === 'freeflow') {
+      return 'Free flow conversation';
     }
     return '';
   };
@@ -351,14 +355,16 @@ const InviteUsers: React.FC = () => {
   };
 
   // Check if event section is complete (for form validation)
-  const isEventSectionComplete = eventType && 
+  const isEventSectionComplete = eventType && (
+    eventType === 'freeflow' ||
     ((eventParameter && eventParameter !== 'custom') || 
      (eventParameter === 'custom' && 
       ((eventType === 'length' && customWordCount) || 
        (eventType === 'time' && customDuration)))) &&
     (eventType !== 'length' || 
      (eventTimePeriod && 
-      (eventTimePeriod !== 'custom' || (eventTimePeriod === 'custom' && customTimePeriod))));
+      (eventTimePeriod !== 'custom' || (eventTimePeriod === 'custom' && customTimePeriod))))
+  );
 
   // Auto-collapse event section when user interacts with other sections
   const handleOtherSectionInteraction = () => {
@@ -404,9 +410,9 @@ const InviteUsers: React.FC = () => {
       <TransitionWrapper animation="fade" className="min-h-screen pt-24 pb-10">
         <div className="max-w-3xl mx-auto px-4">
           {/* Create Invite Card */}
-          <Card className="mb-6">
+          <Card className="mb-6 bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40">
             <CardHeader>
-              <CardTitle>Create Invite Link</CardTitle>
+              <CardTitle className="text-foreground/90 dark:text-white/90">Create Invite Link</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
@@ -418,7 +424,7 @@ const InviteUsers: React.FC = () => {
                     value={recipientName}
                     onChange={(e) => setRecipientName(e.target.value)}
                     onFocus={handleOtherSectionInteraction}
-                    className="flex-1"
+                    className="flex-1 placeholder:text-foreground/80 dark:placeholder:text-white/80"
                   />
                 </div>
 
@@ -433,7 +439,7 @@ const InviteUsers: React.FC = () => {
                         onChange={(e) => setCurrentTopic(e.target.value)}
                         onKeyPress={handleKeyPress}
                         onFocus={handleOtherSectionInteraction}
-                        className="flex-1"
+                        className="flex-1 placeholder:text-foreground/80 dark:placeholder:text-white/80"
                       />
                       <Button 
                         size="icon"
@@ -456,7 +462,7 @@ const InviteUsers: React.FC = () => {
                         {topics.map((topic, index) => (
                           <div 
                             key={index} 
-                            className="group relative bg-background border border-border rounded-lg px-3 py-1 flex items-center max-w-xs overflow-hidden"
+                            className="group relative bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm border border-muted/40 rounded-xl px-3 py-1 flex items-center max-w-xs overflow-hidden"
                             title={topic}
                           >
                             {/* Main topic selection dot */}
@@ -517,15 +523,19 @@ const InviteUsers: React.FC = () => {
                 <div className="space-y-2">
                   <button
                     onClick={() => setShowEventSection(!showEventSection)}
-                    className="flex items-center justify-between w-full p-3 rounded-lg border border-border hover:bg-muted/30 transition-all duration-200 hover:border-border/60"
+                    className="flex items-center justify-between w-full p-3 rounded-xl border border-muted/40 bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm hover:bg-muted/80 dark:hover:bg-[#2a2f38] transition-all duration-200 hover:border-primary/20"
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn(
                         "p-1.5 rounded-full",
-                        eventType === 'length' ? "bg-blue-100 dark:bg-blue-900/20" : "bg-orange-100 dark:bg-orange-900/20"
+                        eventType === 'length' ? "bg-blue-100 dark:bg-blue-900/20" : 
+                        eventType === 'freeflow' ? "bg-purple-100 dark:bg-purple-900/20" :
+                        "bg-orange-100 dark:bg-orange-900/20"
                       )}>
                         {eventType === 'length' ? (
                           <FileText className="h-4 w-4 text-blue-600" />
+                        ) : eventType === 'freeflow' ? (
+                          <MessageSquare className="h-4 w-4 text-purple-600" />
                         ) : (
                           <Clock className="h-4 w-4 text-orange-600" />
                         )}
@@ -534,12 +544,17 @@ const InviteUsers: React.FC = () => {
                         <span className="text-sm font-medium">Event Type</span>
                         {isEventSectionComplete ? (
                           <div className="flex items-center gap-2">
-                            <p className="text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30 px-2 py-1 rounded-md">
+                            <p className={cn(
+                              "text-xs font-medium px-2 py-1 rounded-md",
+                              eventType === 'length' ? "text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/30" :
+                              eventType === 'freeflow' ? "text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/30" :
+                              "text-orange-700 dark:text-orange-300 bg-orange-50 dark:bg-orange-950/30"
+                            )}>
                               {getEventDisplayText()}
                             </p>
                           </div>
                         ) : (
-                          <p className="text-xs text-muted-foreground">Choose length or time-based</p>
+                          <p className="text-xs text-muted-foreground">Choose length, time-based, or free flow</p>
                         )}
                       </div>
                     </div>
@@ -554,7 +569,7 @@ const InviteUsers: React.FC = () => {
                     <div className="pl-6 space-y-3 pt-1">
                       {/* Event Type Selection - Radio buttons instead of dropdown */}
                       <div className="space-y-2">
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-3 gap-2">
                           <button
                             onClick={() => {
                               setEventType('length');
@@ -597,6 +612,27 @@ const InviteUsers: React.FC = () => {
                               <p className="text-xs text-muted-foreground">Coming soon (Live)</p>
                             </div>
                           </button>
+
+                          <button
+                            onClick={() => {
+                              setEventType('freeflow');
+                              resetEventValues();
+                            }}
+                            className={cn(
+                              "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all duration-200",
+                              eventType === 'freeflow' 
+                                ? "border-purple-500 bg-purple-50 dark:bg-purple-950/20" 
+                                : "border-border hover:border-border/60 hover:bg-muted/30"
+                            )}
+                          >
+                            <div className="p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30">
+                              <MessageSquare className="h-4 w-4 text-purple-600" />
+                            </div>
+                            <div className="text-center">
+                              <span className="text-sm font-medium">Free Flow</span>
+                              <p className="text-xs text-muted-foreground">No word limit - great for friends</p>
+                            </div>
+                          </button>
                         </div>
                       </div>
 
@@ -634,7 +670,7 @@ const InviteUsers: React.FC = () => {
                                       setCustomWordCount(e.target.value);
                                       setEventParameter('custom');
                                     }}
-                                    className="flex-1 bg-transparent text-sm outline-none"
+                                    className="flex-1 bg-transparent text-sm outline-none placeholder:text-foreground/80 dark:placeholder:text-white/80"
                                     min="1"
                                     max="10000"
                                     autoFocus
@@ -677,7 +713,7 @@ const InviteUsers: React.FC = () => {
                                 placeholder="Enter word count"
                                 value={customWordCount}
                                 onChange={(e) => setCustomWordCount(e.target.value)}
-                                className="w-full"
+                                className="w-full placeholder:text-foreground/80 dark:placeholder:text-white/80"
                                 min="1"
                                 max="10000"
                               />
@@ -717,7 +753,7 @@ const InviteUsers: React.FC = () => {
                                         setCustomTimePeriod(e.target.value);
                                         setEventTimePeriod('custom');
                                       }}
-                                      className="flex-1 bg-transparent text-sm outline-none"
+                                      className="flex-1 bg-transparent text-sm outline-none placeholder:text-foreground/80 dark:placeholder:text-white/80"
                                       min="1"
                                       max="30"
                                     />
@@ -760,7 +796,7 @@ const InviteUsers: React.FC = () => {
                                 placeholder="Enter number of days"
                                 value={customTimePeriod}
                                 onChange={(e) => setCustomTimePeriod(e.target.value)}
-                                className="w-full"
+                                className="w-full placeholder:text-foreground/80 dark:placeholder:text-white/80"
                                 min="1"
                                 max="30"
                               />
@@ -797,6 +833,29 @@ const InviteUsers: React.FC = () => {
                         </div>
                       )}
 
+                      {/* Free Flow Event Configuration */}
+                      {eventType === 'freeflow' && (
+                        <div className="space-y-3 pl-4 border-l-2 border-purple-200 dark:border-purple-800">
+                          <div className="p-4 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                            <div className="flex items-start gap-3">
+                              <div className="p-2 rounded-full bg-purple-100 dark:bg-purple-900/30">
+                                <MessageSquare className="h-5 w-5 text-purple-600" />
+                              </div>
+                              <div className="flex-1 space-y-2">
+                                <h4 className="text-sm font-semibold text-purple-800 dark:text-purple-200">
+                                  Natural Conversation Flow
+                                </h4>
+                                <div className="space-y-1 text-xs text-purple-700 dark:text-purple-300">
+                                  <p>• Cannot send payment to the recipient</p>
+                                  <p>• Perfect for casual discussions with friends</p>
+                                  <p>• No word count limits or time pressure</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       {/* Done Button */}
                       {isEventSectionComplete && (
                         <div className="pt-2">
@@ -813,11 +872,12 @@ const InviteUsers: React.FC = () => {
                   )}
                 </div>
 
-                {/* Payment Section */}
+                {/* Payment Section - Hidden for Free Flow */}
+                {eventType !== 'freeflow' && (
                 <div className="space-y-2">
                   <button
                     onClick={() => setShowPaymentSection(!showPaymentSection)}
-                    className="flex items-center justify-between w-full p-3 rounded-lg border border-border hover:bg-muted/30 transition-all duration-200 hover:border-border/60"
+                    className="flex items-center justify-between w-full p-3 rounded-xl border border-muted/40 bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm hover:bg-muted/80 dark:hover:bg-[#2a2f38] transition-all duration-200 hover:border-primary/20"
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn(
@@ -877,7 +937,7 @@ const InviteUsers: React.FC = () => {
                                 placeholder="0.00"
                                 value={paymentAmount}
                                 onChange={(e) => setPaymentAmount(e.target.value)}
-                                className="flex-1 bg-transparent text-sm outline-none"
+                                className="flex-1 bg-transparent text-sm outline-none placeholder:text-foreground/80 dark:placeholder:text-white/80"
                                 min="0"
                                 step="0.01"
                                 autoFocus
@@ -1022,7 +1082,7 @@ const InviteUsers: React.FC = () => {
                                     setCardNumber(formatted.substring(0, 19));
                                     setCardNumberValid(value.length >= 13 && value.length <= 19);
                                   }}
-                                  className="flex-1 bg-transparent text-sm outline-none"
+                                  className="flex-1 bg-transparent text-sm outline-none placeholder:text-foreground/80 dark:placeholder:text-white/80"
                                   maxLength={19}
                                 />
                                 <div className="flex items-center space-x-1 ml-2">
@@ -1049,7 +1109,7 @@ const InviteUsers: React.FC = () => {
                                     setCardExpiry(formatted.substring(0, 5));
                                     setCardExpiryValid(value.length === 4);
                                   }}
-                                  className="w-full p-3 border border-input rounded-md bg-background text-sm outline-none"
+                                  className="w-full p-3 border border-input rounded-md bg-background text-sm outline-none placeholder:text-foreground/80 dark:placeholder:text-white/80"
                                   maxLength={5}
                                 />
                               </div>
@@ -1064,7 +1124,7 @@ const InviteUsers: React.FC = () => {
                                     setCardCVC(value.substring(0, 4));
                                     setCardCVCValid(value.length >= 3);
                                   }}
-                                  className="w-full p-3 border border-input rounded-md bg-background text-sm outline-none"
+                                  className="w-full p-3 border border-input rounded-md bg-background text-sm outline-none placeholder:text-foreground/80 dark:placeholder:text-white/80"
                                   maxLength={4}
                                 />
                               </div>
@@ -1081,7 +1141,7 @@ const InviteUsers: React.FC = () => {
                                   setCardholderName(e.target.value);
                                   setCardholderNameValid(e.target.value.trim().length > 0);
                                 }}
-                                className="w-full p-3 border border-input rounded-md bg-background text-sm outline-none"
+                                className="w-full p-3 border border-input rounded-md bg-background text-sm outline-none placeholder:text-foreground/80 dark:placeholder:text-white/80"
                               />
                             </div>
                             
@@ -1145,6 +1205,7 @@ const InviteUsers: React.FC = () => {
                     </div>
                   )}
                 </div>
+                )}
 
                 {/* Verification Platform Selector */}
                 <div className="space-y-2">

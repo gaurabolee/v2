@@ -79,19 +79,19 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({
   const currentSpeakerData = speakers.find(s => s.id === currentSpeaker);
 
   return (
-    <div className="border bg-background/95 backdrop-blur-sm rounded-lg shadow-sm">
+    <div className="bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40">
       {/* Main Player Controls */}
       <div className="p-2 space-y-2">
         {/* Mode Toggle */}
         <div className="flex justify-center">
-          <div className="flex bg-muted rounded-sm p-0.5">
+          <div className="flex bg-gray-200 dark:bg-gray-700 rounded-sm p-0.5">
             <button
               onClick={() => onModeChange('audio')}
               className={cn(
                 "px-2 py-0.5 rounded text-xs font-medium transition-colors",
                 currentMode === 'audio'
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               )}
             >
               Audio
@@ -101,8 +101,8 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({
               className={cn(
                 "px-2 py-0.5 rounded text-xs font-medium transition-colors",
                 currentMode === 'video'
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? "bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm"
+                  : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
               )}
             >
               Video
@@ -121,7 +121,7 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({
               // Handle seek functionality
             }}
           />
-          <div className="flex justify-between text-xs text-muted-foreground">
+          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-300">
             <span>{formatTime(progress)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -178,8 +178,8 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({
               )}
             </Button>
             {showVolumeSlider && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-background border rounded-lg shadow-lg p-3">
-                <div className="w-2 h-20 bg-muted rounded-full relative">
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg p-3">
+                <div className="w-2 h-20 bg-gray-200 dark:bg-gray-600 rounded-full relative">
                   <div 
                     className="absolute bottom-0 w-2 bg-primary rounded-full transition-all duration-200"
                     style={{ height: `${isMuted ? 0 : volume}%` }}
@@ -214,7 +214,7 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({
               {speed}x
             </Button>
             {showSpeedMenu && (
-              <div className="absolute bottom-full left-0 mb-2 p-2 bg-background border rounded-lg shadow-lg min-w-[60px]">
+              <div className="absolute bottom-full left-0 mb-2 p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg min-w-[60px]">
                 {speedOptions.map((option) => (
                   <button
                     key={option}
@@ -223,8 +223,8 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({
                       setShowSpeedMenu(false);
                     }}
                     className={cn(
-                      "block w-full text-left px-2 py-1 text-xs rounded hover:bg-muted",
-                      speed === option && "bg-muted font-medium"
+                      "block w-full text-left px-2 py-1 text-xs rounded hover:bg-gray-100 dark:hover:bg-gray-700",
+                      speed === option && "bg-gray-100 dark:bg-gray-700 font-medium"
                     )}
                   >
                     {option}x
@@ -238,8 +238,8 @@ const PodcastPlayer: React.FC<PodcastPlayerProps> = ({
 
       {/* Video/Audio Display Area */}
       {currentMode === 'video' && (
-        <div className="border-t bg-muted/20 p-2">
-          <div className="aspect-video bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 rounded-lg flex items-center justify-center relative overflow-hidden">
+        <div className="border-t border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700/50 p-2">
+          <div className="aspect-video bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-800 dark:to-gray-700 rounded-lg flex items-center justify-center relative overflow-hidden">
             {/* Speaker Avatars */}
             <div className="flex items-center gap-4">
               {speakers.map((speaker) => (

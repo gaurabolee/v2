@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { User as UserIcon, Linkedin, Twitter, Facebook, Instagram, Copy, Mail, Share, Youtube, Shield, Settings, Camera, CopyIcon, CheckIcon, Loader2, MoreVertical, ImagePlus, Edit3, Trash2, Check } from 'lucide-react';
+import { User as UserIcon, Linkedin, Twitter, Facebook, Instagram, Copy, Mail, Share, Youtube, Shield, Settings, Camera, CopyIcon, CheckIcon, Loader2, MoreVertical, ImagePlus, Edit3, Trash2, Check, Mic, Clock } from 'lucide-react';
 import TransitionWrapper from '@/components/TransitionWrapper';
 import Navbar from '@/components/Navbar';
 import DebateCard from '@/components/DebateCard';
@@ -102,6 +102,7 @@ const Profile: React.FC<ProfileProps> = () => {
   });
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [showValidateDialog, setShowValidateDialog] = useState(false);
+  const [showPodcastDialog, setShowPodcastDialog] = useState(false);
   const [socialLinks, setSocialLinks] = useState<ContextSocialLinks>({
     linkedin: currentUser?.socialLinks?.linkedin ?? '',
     twitter: currentUser?.socialLinks?.twitter ?? '',
@@ -568,7 +569,6 @@ const Profile: React.FC<ProfileProps> = () => {
     { name: 'facebook' as const, Icon: Facebook, label: 'Facebook' },
     { name: 'instagram' as const, Icon: Instagram, label: 'Instagram' },
     { name: 'youtube' as const, Icon: Youtube, label: 'YouTube' },
-    { name: 'tiktok' as const, Icon: TikTokIcon, label: 'TikTok' },
   ] as const;
 
   const renderSocialButtons = () => {
@@ -584,23 +584,9 @@ const Profile: React.FC<ProfileProps> = () => {
 
           return (
             <div key={platformKey} className="flex items-center">
-              <Button
-                variant={isVerified ? "ghost" : "outline"}
-                size="icon"
-                className={cn(
-                  "flex items-center justify-center relative rounded-full",
-                  isVerified
-                    ? "text-black hover:text-gray-800 hover:bg-gray-100"
-                    : isPending
-                    ? "bg-yellow-100 hover:bg-yellow-200 text-yellow-600"
-                    : "text-muted-foreground hover:bg-muted-foreground/10 hover:text-foreground"
-                )}
-                onClick={() => isVerified ? window.open(currentLink, '_blank') : handleVerificationStart(platformKey)}
-                disabled={isPending}
-              >
-                <Icon className="h-5 w-5" />
-                {isVerified && <CheckIcon className="h-3.5 w-3.5 text-black bg-background rounded-full absolute -top-1 -right-1 p-0.5" />}
-              </Button>
+              <span className="h-10 w-10 flex items-center justify-center rounded-full border border-white/40 bg-white/10 shadow-sm">
+                <Icon className="h-5 w-5 text-white" />
+              </span>
             </div>
           );
         })}
@@ -742,7 +728,7 @@ const Profile: React.FC<ProfileProps> = () => {
     <>
       <Navbar />
       <div className="container mx-auto px-4 py-8 max-w-4xl mt-16">
-        <Card className="mb-8 border overflow-hidden transition-all duration-300 hover:shadow-lg rounded-2xl bg-background/80 backdrop-blur-md">
+        <Card className="mb-8 border overflow-hidden transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40 dark:border-muted/40">
           <CardHeader className="pb-4">
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-8 relative w-full">
               <div className="relative">
@@ -763,7 +749,7 @@ const Profile: React.FC<ProfileProps> = () => {
                   </div>
                 <span className="text-base font-medium text-muted-foreground font-sans">@{currentUser.username}</span>
                 {currentUser.bio && (
-                  <p className="mt-2 text-sm text-muted-foreground font-sans text-center sm:text-left max-w-xl">{currentUser.bio}</p>
+                  <p className="mt-2 text-sm text-foreground/80 font-sans text-center sm:text-left max-w-xl">{currentUser.bio}</p>
                 )}
                 <div className="w-full border-t border-border/40 my-4"></div>
                 <div className="w-full">
@@ -802,9 +788,18 @@ const Profile: React.FC<ProfileProps> = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => setIsEditing(true)}
-                  className="transition-all duration-200 hover:shadow-sm"
+                  className="h-8 px-3 text-xs font-medium border-foreground/20 dark:border-white/20 text-foreground/80 dark:text-white/80 hover:text-foreground dark:hover:text-white hover:border-foreground/40 dark:hover:border-white/40 transition-all duration-200 hover:shadow-sm bg-background/50 dark:bg-white/10 backdrop-blur-sm"
                 >
                   Edit Profile
+                </Button>
+                <Button 
+                  variant="default"
+                  size="sm"
+                  onClick={() => setShowPodcastDialog(true)}
+                  className="h-8 px-3 text-xs font-medium bg-foreground/10 dark:bg-white/20 hover:bg-foreground/20 dark:hover:bg-white/30 text-foreground/80 dark:text-white/80 hover:text-foreground dark:hover:text-white border border-foreground/20 dark:border-white/20 transition-all duration-200 hover:shadow-sm backdrop-blur-sm"
+                >
+                  <Mic className="h-3 w-3 mr-1" />
+                  Podcast
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -955,6 +950,37 @@ const Profile: React.FC<ProfileProps> = () => {
             <CardFooter className="w-full mt-2">
               <Button size="sm" className="w-full h-7 text-xs" onClick={handleVerificationSubmit} disabled={!selectedPlatform || verificationScreenshots.length === 0}>
                 Submit for Verification
+              </Button>
+            </CardFooter>
+          </Card>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showPodcastDialog} onOpenChange={setShowPodcastDialog}>
+        <DialogContent className="sm:max-w-[425px] p-0 bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40">
+          <Card className="bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40 border-none shadow-none">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg font-medium mb-1">Podcast Feature</CardTitle>
+              <CardDescription className="text-xs text-muted-foreground text-center">
+                Transform your content into AI-generated podcasts
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <div className="w-full bg-muted/50 dark:bg-muted/30 rounded-xl py-6 px-4 flex flex-col items-center gap-3 border border-muted/20">
+                <Mic className="h-8 w-8 text-primary" />
+                <div className="text-center">
+                  <p className="text-sm font-medium text-foreground mb-2">
+                    Audio and Video clone will be available soon
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Upload your content and let AI convert it into professional podcasts with multiple voices, background music, and chapter markers.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="w-full mt-2">
+              <Button size="sm" className="w-full h-8 text-xs" onClick={() => setShowPodcastDialog(false)}>
+                Got it
               </Button>
             </CardFooter>
           </Card>

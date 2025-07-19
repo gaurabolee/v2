@@ -22,16 +22,14 @@ const Messages: React.FC = () => {
   return (
     <>
       <Navbar />
-      <TransitionWrapper animation="fade" className="min-h-screen pt-20 pb-4">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold">Texts</h1>
-          </div>
-
-          <Tabs defaultValue="open" className="w-full">
-            <TabsList className="grid w-[200px] grid-cols-2 mb-6">
-              <TabsTrigger value="open">Open</TabsTrigger>
-              <TabsTrigger value="closed">Closed</TabsTrigger>
+      <TransitionWrapper animation="fade" className="min-h-screen bg-background pt-24 pb-24">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Card className="bg-muted/70 dark:bg-[#23272f] backdrop-blur-sm shadow-lg rounded-2xl border border-muted/40">
+            <CardContent className="p-4">
+              <Tabs defaultValue="open" className="w-full">
+            <TabsList className="grid w-[200px] grid-cols-2 mb-6 bg-muted/30 dark:bg-muted/20 border border-muted/40">
+              <TabsTrigger value="open" className="data-[state=active]:bg-muted/50 dark:data-[state=active]:bg-muted/30 data-[state=active]:text-foreground/90 dark:data-[state=active]:text-white/90">Open</TabsTrigger>
+              <TabsTrigger value="closed" className="data-[state=active]:bg-muted/50 dark:data-[state=active]:bg-muted/30 data-[state=active]:text-foreground/90 dark:data-[state=active]:text-white/90">Closed</TabsTrigger>
             </TabsList>
 
             <TabsContent value="open" className="space-y-4">
@@ -53,7 +51,7 @@ const Messages: React.FC = () => {
                       </div>
                       <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground">
                         <div className="flex items-center gap-3">
-                          <span>2h ago</span>
+                        <span>2h ago</span>
                           <span className="flex items-center gap-1"><Eye className="h-3 w-3" />1.2k</span>
                         </div>
                         <Button variant="ghost" size="icon" className="h-7 w-7 p-0"><Share2 className="h-4 w-4" /></Button>
@@ -81,7 +79,7 @@ const Messages: React.FC = () => {
                       </div>
                       <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground">
                         <div className="flex items-center gap-3">
-                          <span>5h ago</span>
+                        <span>5h ago</span>
                           <span className="flex items-center gap-1"><Eye className="h-3 w-3" />856</span>
                         </div>
                         <Button variant="ghost" size="icon" className="h-7 w-7 p-0"><Share2 className="h-4 w-4" /></Button>
@@ -109,7 +107,7 @@ const Messages: React.FC = () => {
                       </div>
                       <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground">
                         <div className="flex items-center gap-3">
-                          <span>1d ago</span>
+                        <span>1d ago</span>
                           <span className="flex items-center gap-1"><Eye className="h-3 w-3" />2.1k</span>
                         </div>
                         <Button variant="ghost" size="icon" className="h-7 w-7 p-0"><Share2 className="h-4 w-4" /></Button>
@@ -137,7 +135,7 @@ const Messages: React.FC = () => {
                       </div>
                       <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground">
                         <div className="flex items-center gap-3">
-                          <span>30m ago</span>
+                        <span>30m ago</span>
                           <span className="flex items-center gap-1"><Eye className="h-3 w-3" />634</span>
                         </div>
                         <Button variant="ghost" size="icon" className="h-7 w-7 p-0"><Share2 className="h-4 w-4" /></Button>
@@ -165,7 +163,7 @@ const Messages: React.FC = () => {
                       </div>
                       <div className="flex items-center justify-between mt-1 text-xs text-muted-foreground">
                         <div className="flex items-center gap-3">
-                          <span>3h ago</span>
+                        <span>3h ago</span>
                           <span className="flex items-center gap-1"><Eye className="h-3 w-3" />1.8k</span>
                         </div>
                         <Button variant="ghost" size="icon" className="h-7 w-7 p-0"><Share2 className="h-4 w-4" /></Button>
@@ -181,7 +179,9 @@ const Messages: React.FC = () => {
                 No closed conversations yet
               </div>
             </TabsContent>
-          </Tabs>
+              </Tabs>
+            </CardContent>
+          </Card>
         </div>
       </TransitionWrapper>
     </>

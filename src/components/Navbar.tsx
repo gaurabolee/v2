@@ -254,7 +254,7 @@ const Navbar: React.FC = () => {
                   ? <Sun className="h-5 w-5 block relative top-[-2px] left-[2px] text-muted-foreground group-hover:text-primary group-focus:text-primary" /> 
                   : <Moon className="h-5 w-5 block relative top-[-2px] left-[2px] text-muted-foreground group-hover:text-primary group-focus:text-primary" />}
               </span>
-            </Button>
+          </Button>
           </div>
         </div>
       </div>
